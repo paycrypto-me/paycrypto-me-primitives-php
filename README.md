@@ -164,6 +164,31 @@ Implementing an algorithm ourselves merely because it looks small is not a proje
 
 ---
 
+## PayCrypto.Me Public Architecture
+
+Before reading or changing this repository's domain architecture, start with
+[PayCrypto.Me Public Architecture](./docs/architecture/PUBLIC-ARCHITECTURE.md).
+It is the shared entry point and authority map: it establishes the public
+architecture's scope, the relationship between its domains, and the context in
+which Primitives operates.
+
+Then read the current Primitives canonical architecture. The public
+architecture document provides context and navigation; the Primitives canonical
+remains the authority for Primitives internals and its evolution.
+
+For human and AI-agent work, the default context is:
+
+```text
+PUBLIC-ARCHITECTURE.md
+        +
+current Primitives canonical
+```
+
+Load other canonicals and evidence only when the work crosses or may affect
+their architectural boundaries.
+
+---
+
 ## Architecture is part of the project
 
 The code tells you what currently exists.
