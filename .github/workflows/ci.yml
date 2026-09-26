@@ -8,14 +8,28 @@ permissions:
   contents: read
 
 jobs:
-  quality:
-    name: PHP library quality checks
+  runtimes:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        run: echo "matrix=$(bash scripts/php-images.sh --matrix)" >> "$GITHUB_OUTPUT"
+  quality:
+    needs: runtimes
+    name: PHP ${{ matrix.php }} quality checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.runtimes.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - name: Build development image
-        run: docker compose build app
+        run: docker compose build --build-arg 'PHP_IMAGE=${{ matrix.image }}' app
       - name: Install Composer dependencies
-        run: docker compose run --rm app composer install --no-interaction --prefer-dist
+        run: docker compose run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer app composer install --no-interaction --prefer-dist
       - name: Run quality suite
-        run: docker compose run --rm app composer ci
+        run: docker compose run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer app composer ci
+      - name: Check release documentation and archive
+        run: bash scripts/check-release.sh

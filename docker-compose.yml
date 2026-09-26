@@ -6,6 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
     image: paycrypto-me-primitives:local
+    # This standalone tool container needs no service discovery. The default
+    # bridge also avoids the host's TLS failures on Compose-created networks.
+    network_mode: bridge
     working_dir: /workspace
     volumes:
       - ./:/workspace
