@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: PHP library quality checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build development image
+        run: docker compose build app
+      - name: Install Composer dependencies
+        run: docker compose run --rm app composer install --no-interaction --prefer-dist
+      - name: Run quality suite
+        run: docker compose run --rm app composer ci

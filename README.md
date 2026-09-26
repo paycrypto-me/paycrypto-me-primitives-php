@@ -222,6 +222,39 @@ For the current source of truth, read the [canonical architecture](./docs/archit
 
 ---
 
+## Development
+
+This is a vanilla PHP library. The development environment is a small PHP CLI
+and Composer container; it deliberately does not include WordPress, a web
+server, or a database.
+
+The supported consumer baseline is PHP 8.1. The Docker image runs PHP 8.3 and
+Composer is configured with an 8.1 platform target, so dependency resolution
+does not accidentally require a newer PHP release.
+
+```bash
+docker compose build
+docker compose run --rm app composer install
+docker compose run --rm app composer check
+```
+
+The complete CI command is:
+
+```bash
+docker compose run --rm app composer ci
+```
+
+It validates Composer metadata, syntax-checks PHP files, runs PHPUnit, and
+runs PHPStan. GitHub Actions executes that same containerized sequence.
+
+The package is prepared for Composer under the provisional name
+`paycrypto-me/primitives`. Before publishing to Packagist, create/confirm that
+vendor/package namespace and connect this repository there. The PSR-4 namespace
+is intentionally provisional too, because the canonical architecture keeps its
+final namespace open until concrete APIs are established.
+
+---
+
 ## Contributing
 
 Contributions should preserve the capability-driven model.

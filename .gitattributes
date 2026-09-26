@@ -1,0 +1,12 @@
+# Keep the repository self-contained for contributors while keeping Composer
+# dist archives focused on the library's runtime and public documentation.
+.dockerignore export-ignore
+.editorconfig export-ignore
+.github export-ignore
+.gitignore export-ignore
+Dockerfile export-ignore
+docker-compose.yml export-ignore
+phpstan.neon.dist export-ignore
+phpunit.xml.dist export-ignore
+tests export-ignore
+tools export-ignore

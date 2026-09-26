@@ -1,0 +1,13 @@
+name: paycrypto-me-primitives
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: paycrypto-me-primitives:local
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      COMPOSER_CACHE_DIR: /tmp/composer-cache
