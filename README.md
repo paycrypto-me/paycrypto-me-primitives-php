@@ -154,11 +154,11 @@ A simple rule guides the library.
 
 **We compose** larger protocol behavior from smaller capabilities.
 
-**We delegate** specialized low-level machinery such as cryptographic algorithms and elliptic-curve mathematics to appropriate implementations.
+**We delegate** cryptographic algorithms, elliptic-curve mathematics and standardized encoders/decoders to researched and qualified libraries or runtime facilities.
 
 For example, BIP32 public-child derivation can own CKDpub semantics while composing HMAC-SHA512 and a secp256k1 public-key tweak capability.
 
-Implementing an algorithm ourselves merely because it looks small is not a project goal.
+Missing suitable providers require further research or explicit scope reconsideration, not a local algorithm or codec implementation.
 
 > **Primitives does not eliminate dependencies. It prevents dependencies from defining the architecture.**
 
@@ -175,6 +175,12 @@ which Primitives operates.
 Then read the current Primitives canonical architecture. The public
 architecture document provides context and navigation; the Primitives canonical
 remains the authority for Primitives internals and its evolution.
+
+The [first capability execution plan](./docs/PLAN-FIRST-CAPABILITY.md) records
+delivery scope, candidate research, contract responsibilities and verification
+gates. Its [composition/API examples](./docs/research/public-address-composition-proposal.md)
+are proposals, not implemented public APIs. Production crypto/codec providers
+and independent review remain pending.
 
 For human and AI-agent work, the default context is:
 

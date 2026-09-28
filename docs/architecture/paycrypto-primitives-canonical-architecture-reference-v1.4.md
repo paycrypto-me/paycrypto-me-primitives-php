@@ -2,6 +2,12 @@
 
 ## Architecture Baseline v1.4
 
+**Dated reconciliation: 2026-09-28.** Section 42.3 records an explicit amendment
+to this baseline following the first-capability planning review. The file name
+and baseline remain v1.4; cite the repository revision for the exact amended
+text. Production dependencies, concrete PHP APIs and implementation evidence
+remain open unless explicitly stated otherwise.
+
 > **Document role:** canonical, self-sufficient architecture reference
 > for the **PayCrypto.Me Primitives** domain\
 > **Audience:** human engineers, reviewers, architects, and AI agents\
@@ -464,6 +470,11 @@ private-key handling
 
 This evidence is why Primitives v1 is intentionally public-key-only.
 
+The observed account depth and `0/index` path are reference facts, not public
+contract defaults. The admitted operation takes an explicit relative public
+path, network definition and address policy. It does not allocate indices,
+infer wallet policies or silently rewrite network/version metadata.
+
 The old implementation also revealed implementation leakage: GMP is
 required by parts of the current Base58/Buffertools/PhpEcc path, but GMP
 is **not a product capability**. Therefore:
@@ -475,17 +486,22 @@ That distinction is representative of the purpose of Primitives.
 
 ------------------------------------------------------------------------
 
-# 6. Final conceptual diagram
+# 6. Conceptual capability map
+
+This map expresses semantic relationships, not frozen PHP objects or an executed
+provider graph. Its arrows include composition/data relationships, not only code
+dependencies. Final implementation diagrams follow provider qualification and
+contract decisions. Non-Bitcoin definitions illustrate extension, not delivery.
 
 ``` mermaid
 flowchart TB
-    CORE["PayCrypto.Me Core<br/>Payment / WalletPolicy / Allocation / ReceivingSource"]
-    PAD["PublicAddressDeriver"]
+    CORE["External capability request"]
 
     CORE --> PAD
 
     subgraph PRIM["PayCrypto.Me Primitives"]
       direction TB
+      PAD["PublicAddressDeriver"]
 
       subgraph CRYPTO["Crypto capabilities"]
         SHA["Sha256"]
@@ -547,7 +563,7 @@ flowchart TB
     subgraph IMPL["Implementation adapters"]
       PHP["Trusted runtime hashing"]
       PARA["paragonie/ecc<br/>initial candidate"]
-      ALT["Alternative backend<br/>future"]
+      ALT["Alternative backend<br/>qualification required"]
     end
 
     SHA --> PHP
@@ -561,17 +577,14 @@ flowchart TB
 
 ``` text
 ┌────────────────────────────────────────────────────────────────────┐
-│                         PAYCRYPTO.ME CORE                          │
-│                                                                    │
-│  Payment / WalletPolicy / Allocation / ReceivingSource / ...       │
-│                                                                    │
-│                    PublicAddressDeriver                            │
+│                    EXTERNAL CAPABILITY REQUEST                     │
 └──────────────────────────────┬─────────────────────────────────────┘
                                │ capability request
                                ▼
-════════════════════ CORE / PRIMITIVES BOUNDARY ═════════════════════
+════════════════════════ PRIMITIVES BOUNDARY ═══════════════════════
 
                     PAYCRYPTO.ME PRIMITIVES
+                       PublicAddressDeriver
 
         ┌────────────────┬────────────────┬────────────────┐
         ▼                ▼                ▼                ▼
@@ -789,6 +802,18 @@ keys everywhere.
 > **Definitions contain data; strategies/capabilities contain
 > behavior.**
 
+Definition loading validates supported schemas and produces immutable semantic
+views. Definitions may name supported protocol profiles, but never vendor
+classes, executable steps or fallback rules. A profile identifier cannot supply
+behavior that has not been implemented and qualified. Requests select explicit
+policies and definitions; compatibility is checked rather than resolved through
+silent overrides. Backend selection belongs to explicit construction/wiring.
+
+A typed-request invocable is a possible public PHP surface, not an accepted
+requirement for every capability. Its qualification must preserve explicit
+composition, localized validation and independence of lower capabilities from
+the complete request or the callers above them. Concrete APIs remain open.
+
 ------------------------------------------------------------------------
 
 # 10. OWN / COMPOSE / DELEGATE
@@ -842,6 +867,7 @@ SHA-256
 RIPEMD-160
 HMAC-SHA512
 secp256k1 mathematical machinery
+standardized encoders/decoders, including structural codecs
 ```
 
 > **Primitives does not eliminate dependencies; it prevents dependencies
@@ -857,11 +883,11 @@ because an implementation appears small, understandable, or easy.
 
 > **PayCrypto.Me Primitives owns capability contracts, protocol
 > semantics, composition, invariants, definitions, semantic value
-> objects, and integration boundaries. It does not seek ownership of
-> cryptographic algorithms, elliptic-curve mathematics, standardized
-> low-level codecs, or equivalent specialized machinery when suitable
-> language/runtime facilities or specialized libraries can provide
-> them.**
+> objects, and integration boundaries. It does not implement cryptographic
+> algorithms, elliptic-curve mathematics or standardized encoders/decoders.
+> These are delegated to researched and qualified language/runtime facilities
+> or libraries. Missing suitable providers require further research or an
+> explicit scope decision, not a local algorithm or codec implementation.**
 
 Short form:
 
@@ -1075,6 +1101,14 @@ ECC owns ECC validity/mechanics.
 The BIP32 layer must not know backend point objects or generic curve
 operations.
 
+Semantic ownership does not preselect a handwritten CKDpub implementation.
+Provider sourcing and integration remain research decisions. A complete BIP32
+provider may hide its own ECC/codec dependencies: qualification must identify
+the actual execution path and prove the required replacement boundaries. An
+unused adapter injected beside that provider is not architectural evidence.
+Any different integration boundary requires explicit reconciliation before
+selection; algorithm and codec gaps must not be filled with local implementations.
+
 ## 12.1 Extended public keys
 
 Conceptually:
@@ -1151,8 +1185,11 @@ Bech32
 `Base58Check` is conceptually a composition of Base58 plus checksum
 semantics.
 
-Whether Base58 and Bech32 are implemented by PayCrypto or delegated
-remains open pending implementation research.
+Base58, Base58Check and Bech32 encoding/decoding implementations are delegated.
+Provider selection remains open; implementation ownership does not. Owning
+protocol semantics or composing hashing operations does not authorize writing
+a local standardized codec. This explicitly supersedes the earlier open
+ownership wording (see section 42.3).
 
 ------------------------------------------------------------------------
 
@@ -1601,6 +1638,19 @@ known problem / lifecycle event
 
 > **Backend replacement is explicit, verified, and fail-closed.**
 
+For each library-backed capability boundary, qualify two distinct suitable
+libraries through separate adapters against the same semantic conformance suite
+and consuming compositions. Prefer materially different usage APIs. Reuse
+contracts, entities and compositions; adapters may differ. Replacement changes
+provider wiring, not semantic contracts to accommodate vendor APIs. A missing
+qualified second provider leaves the architecture check pending.
+
+Only one provider need ship in production; the alternative belongs in
+verification tooling. Runtime facilities need conformance and independent
+evidence, not artificial wrappers counted as additional libraries. Two different
+library APIs do not prove cryptographic independence if both use the same
+underlying implementation. Record that distinction in review evidence.
+
 ------------------------------------------------------------------------
 
 # 26. Verification strategy
@@ -1632,6 +1682,15 @@ For BIP32, the compatibility gate should include:
 
 Differential disagreement means **investigate**. Majority output is not
 automatically truth.
+
+Review evidence must link requirements to contracts, definitions/schema revisions,
+executed compositions, exact providers, vector provenance, reproducible commands
+and results. Cover success, failure and unsupported combinations, including
+controlled rare outcomes with clearly identified injection seams. Record limits,
+unresolved gaps and the independence of each reference for the property checked.
+Artifact hashes establish integrity, not external endorsement. Implementation
+readiness and an independent organization's actual review outcome are separate
+states; preserve the reviewed snapshot and track findings and subsequent changes.
 
 ------------------------------------------------------------------------
 
@@ -2057,7 +2116,7 @@ silently changed:
 These are intentionally **not frozen**:
 
 -   final Base58 implementation;
--   final Base58Check implementation ownership;
+-   final delegated Base58Check provider;
 -   final Bech32 implementation;
 -   definitive secp256k1 backend;
 -   whether `paragonie/ecc` becomes production or remains
@@ -2100,7 +2159,7 @@ This should become an explicit compatibility/test requirement.
 
 A future engineer/agent should continue from here in this order.
 
-## Step 1 --- Freeze minimal semantic contracts
+## Step 1 --- Sketch minimal semantic contracts
 
 Design only the contracts justified by the Bitcoin XPUB requirement,
 especially:
@@ -2118,9 +2177,10 @@ Secp256k1PublicKeyTweaker
 Base58 / Base58Check
 Bech32
 Bitcoin address compositions
-Definition schema/registry boundary
+Definition schema/loading boundary
 ```
 
+Qualify sketches through research and real adapters before freezing them.
 Do not freeze class names merely because they appear here.
 
 ## Step 2 --- Feasibility/dependency matrix
@@ -2137,9 +2197,10 @@ replacement options
 production dependency footprint
 ```
 
-Specifically investigate whether Base58 can be implemented
-deterministically without GMP using byte-array/divmod techniques rather
-than assuming big integers are required.
+Investigate existing Base58 providers and their deterministic backend selection
+and runtime requirements. GMP-free providers may be compared, but writing local
+byte-array/divmod codecs is outside the implementation boundary. GMP is permitted
+for the initial ECC provider; its necessity remains a provider property.
 
 ## Step 3 --- ECC backend spike
 
@@ -2149,32 +2210,35 @@ PayCrypto contract**, not by exposing its API.
 Also use independent/reference implementations to verify that the
 contract is not accidentally Paragonie-shaped.
 
+Apply section 25's two-library check to every library-backed boundary. Keep
+architectural replacement evidence distinct from independent mathematical checks.
+
 ## Step 4 --- Compatibility gate
 
-Build official BIP32 and address vectors before replacing the old
-production behavior.
+Build official BIP32 and address vectors before implementing the new production
+capability. Reference regressions require independent justification; old behavior
+is not a compatibility mandate. Resolve invalid-child semantics and provider
+discrepancies, record explicit selections and freeze qualified contracts.
 
 ## Step 5 --- Implement one vertical slice
 
 Prefer an end-to-end derived Bitcoin address slice:
 
 ``` text
-Consumer test
+Standalone Primitives request: public extended key + relative path + definition + policy
    ↓
-SDK
+Public address operation and admitted protocol composition
    ↓
-Core
+Qualified public derivation + key operations + hashing + delegated encoding
    ↓
-PublicAddressDeriver
-   ↓
-Primitives
-   ↓
-BIP32 + secp256k1 + hashing + encoding
-   ↓
-address
+Public address result or specified failure
 ```
 
 Do not build all future primitives first.
+
+Complete P2PKH, P2SH-P2WPKH and P2WPKH on validated mainnet/testnet definitions.
+The first completed branch is a milestone, not completion of the whole slice.
+Fixed-address and hosted-payment flows are not additional deliverables here.
 
 ## Step 6 --- Expand only from concrete requirements
 
@@ -2629,3 +2693,42 @@ or handoff constraint is removed by this consolidation.
 
 Per the canonical replacement policy, **v1.4 supersedes v1.3 and is the
 current source of truth for the PayCrypto.Me Primitives domain**.
+
+## 42.3 Dated reconciliation — 2026-09-28
+
+This amendment records the explicit project instructions and first-capability
+planning decisions. It updates this v1.4 baseline in place; source revision
+identifies the exact text. It does not select production libraries or certify
+an implementation. The authority map and other domains are unchanged.
+
+Superseded wording and its replacement:
+
+1. Sections 10A, 13.3 and 32 no longer leave local crypto/codec implementation
+   open. All cryptographic algorithms and standardized encoders/decoders are
+   delegated; only provider selection is open. Lack of a suitable provider means
+   research or explicit scope reconsideration. OWN still covers semantics,
+   invariants, definitions, operations and composition.
+2. Section 34 replaces local Base58 algorithm exploration with provider research,
+   and replaces a surrounding-domain integration slice with standalone Primitives
+   delivery. Old production output is evidence, not a preservation mandate.
+3. Contract sketches precede qualification; freezing follows real-provider
+   evidence. Two distinct libraries and separate adapters exercise every
+   library-backed boundary. API independence and mathematical independence are
+   different claims; one production provider remains sufficient.
+4. Section 12 makes BIP32 sourcing explicitly unresolved. Its conceptual
+   composition is not proof that a chosen provider exposes substitutable ECC
+   or codec boundaries. Qualification must show the executed path.
+5. Section 9 makes validation, immutable definition semantics, explicit policy
+   compatibility and provider-free data concrete. The typed-request invocable
+   remains a proposal, not a frozen API or a new architecture invariant.
+6. Section 6 is labeled a conceptual map and places the public operation inside
+   Primitives, without modeling caller internals. Final implementation diagrams
+   remain pending qualified providers and contracts.
+7. Section 26 requires traceable, reproducible review evidence and separates
+   review readiness from an actual independent review outcome.
+
+The [execution plan](../PLAN-FIRST-CAPABILITY.md) tracks scope, open decisions,
+candidate comparisons, contract responsibilities and exit gates. The
+[composition proposal](../research/public-address-composition-proposal.md)
+illustrates possible usage; it does not freeze classes or add Bitcoin Cash to
+the delivery. English remains the repository documentation language.

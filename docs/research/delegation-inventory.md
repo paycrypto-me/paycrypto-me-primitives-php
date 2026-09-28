@@ -3,6 +3,11 @@
 **Status:** discussion and feasibility-research input. Not canonical architecture,
 a dependency selection, a PHP API specification, or an implementation approval.
 
+The [execution plan's joint candidate worksheet](../PLAN-FIRST-CAPABILITY.md#3-joint-candidate-research-worksheet)
+contains the assistant's current recommendations and an intentionally empty user
+candidate column. Edit candidate proposals there; this inventory remains the
+reference for scope, responsibilities and per-item verification requirements.
+
 ## Scope and responsibility
 
 The admitted requirement is public extended-key derivation to Bitcoin P2PKH,
@@ -151,12 +156,17 @@ For every candidate, record:
 2. Exact package/release/source revision, license, runtime/extensions, transitive
    dependencies, maintenance and security-history evidence.
 3. Contract fit and adapter responsibilities; external types contained; unwanted
-   private-key/signing features excluded from our exposed surface.
+   private-key/signing features excluded from our exposed surface. Identify the
+   actual executed dependency path, including any ECC or codec hidden inside a
+   composite provider; unused adapters do not establish replacement boundaries.
 4. Official-vector results, malformed-input and boundary results, controlled
    invalid-child tests, diagnostic behavior and reproducible commands.
 5. Independent reference implementation and shared-dependency analysis.
 6. Explicit backend-selection behavior, replacement route, runtime footprint
-   and measured performance for the required public operations.
+   and measured performance for the required public operations. For each
+   library-backed boundary, qualify two distinct libraries through separate
+   adapters against the same contracts and consuming compositions; a missing
+   second qualified provider remains an open gate.
 7. Outcome: investigate, rejected with reason, or eligible for explicit selection.
 
 GMP is permitted for the initial ECC backend. Its presence is a runtime property,
