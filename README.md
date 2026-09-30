@@ -182,16 +182,47 @@ gates. Its [composition/API examples](./docs/research/public-address-composition
 are proposals, not implemented public APIs. Production crypto/codec providers
 and independent review remain pending.
 
-For human and AI-agent work, the default context is:
+For human and AI-agent work, preserve this repository-first context. Material work is additionally identified by the current PayCrypto.Me Improvement Proposal (PIP), when applicable:
 
 ```text
 PUBLIC-ARCHITECTURE.md
         +
 current Primitives canonical
+        +
+current PIP when the work is material
 ```
 
 Load other canonicals and evidence only when the work crosses or may affect
 their architectural boundaries.
+
+---
+
+## Canonical execution and verification
+
+Primitives uses a small project-local terminology where ordinary professional meaning is not sufficient:
+
+- **PIP — PayCrypto.Me Improvement Proposal:** project-wide identity for a material proposed change. Its lifecycle and conventions belong to the PayCrypto.Me PIP Specification.
+- **CP — Counter-Proof:** a Primitives canonical architectural challenge identified by a stable `CP-NN` identifier. Counter-Proofs test whether a material result preserves required Primitives architectural properties; they do not prescribe implementation techniques.
+
+For material Primitives work, the execution path is conceptually:
+
+```text
+PIP / admitted requirement
+        ↓
+planning and implementation
+        ↓
+Executor Counter-Proof self-challenge
+        ↓
+candidate result
+        ↓
+independent Counter-Proof review
+        ↓
+canonical-compliant result or return to execution
+```
+
+Counter-Proof reports are operational/provenance records, not a second architecture. The current Primitives canonical remains authoritative for the meaning, applicability, required properties, and deep rationale of each CP.
+
+Project-wide PIP conventions are defined by the [PayCrypto.Me PIP Specification](./docs/specifications/PIP-SPECIFICATION.md). Primitives-specific Counter-Proof reporting conventions are defined by the [Counter-Proof Report Protocol](./docs/protocols/primitives/COUNTER-PROOF-REPORT.md).
 
 ---
 
@@ -249,7 +280,11 @@ Some contracts, implementation choices, protocol edge cases, and dependency sele
 
 That is deliberate. An unresolved question is preferable to a prematurely frozen abstraction.
 
-For the current source of truth, read the [canonical architecture](./docs/architecture/paycrypto-primitives-canonical-architecture-reference-v1.4.md) document in this repository.
+For the current source of truth, read the [canonical architecture](./docs/canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md) document in this repository.
+
+Material PayCrypto.Me changes are identified through a **PIP — PayCrypto.Me Improvement Proposal**. PIP is a project-wide work/proposal identity; it does not replace this domain canonical or redefine Primitives architecture. When a Primitives PIP reaches implementation assessment, the Primitives Counter-Proof protocol provides the domain-specific executor self-challenge and independent review mechanism.
+
+Active PIPs live under `docs/pips/`. Historical/inactive PIPs may be retained under `docs/archives/pips/` according to the project-wide PIP specification.
 
 ---
 

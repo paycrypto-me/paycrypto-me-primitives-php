@@ -1,12 +1,6 @@
 # PayCrypto.Me Primitives --- Canonical Architecture Reference
 
-## Architecture Baseline v1.4
-
-**Dated reconciliation: 2026-09-28.** Section 42.3 records an explicit amendment
-to this baseline following the first-capability planning review. The file name
-and baseline remain v1.4; cite the repository revision for the exact amended
-text. Production dependencies, concrete PHP APIs and implementation evidence
-remain open unless explicitly stated otherwise.
+## Architecture Baseline v1.6
 
 > **Document role:** canonical, self-sufficient architecture reference
 > for the **PayCrypto.Me Primitives** domain\
@@ -25,17 +19,18 @@ remain open unless explicitly stated otherwise.
 
 > \[!IMPORTANT\] **Scope boundary --- read this before interpreting any
 > reference to the rest of PayCrypto.Me.**\
-> **Core, SDK, Consumers, External Projects, and other domains are referenced
-> in this document only where their relationship with PayCrypto.Me Primitives
-> is necessary to establish the Primitives boundary, dependency direction,
-> requirement provenance, product constraints, or responsibilities. Their
-> internal architecture, implementation model, abstractions, APIs, domain
-> model, orchestration, lifecycle, and design decisions are outside the scope
-> of this architecture revision.**
+> **Core, SDK, Consumers, External Projects, and other domains are
+> referenced in this document only where their relationship with
+> PayCrypto.Me Primitives is necessary to establish the Primitives
+> boundary, dependency direction, requirement provenance, product
+> constraints, or responsibilities. Their internal architecture,
+> implementation model, abstractions, APIs, domain model, orchestration,
+> lifecycle, and design decisions are outside the scope of this
+> architecture revision.**
 >
-> References to surrounding domains are intentionally shallow. This canonical
-> defines Primitives; it does not define the architecture of neighboring
-> domains.
+> References to surrounding domains are intentionally shallow. This
+> canonical defines Primitives; it does not define the architecture of
+> neighboring domains.
 
 ------------------------------------------------------------------------
 
@@ -69,8 +64,8 @@ architecture** from this file without needing the conversation that
 produced it.
 
 > \[!NOTE\] Do not interpret the contextual diagrams in this document as
-> canonical internal designs for Core, SDK, Consumers, External Projects,
-> or any other external domain. Their presence answers
+> canonical internal designs for Core, SDK, Consumers, External
+> Projects, or any other external domain. Their presence answers
 > questions such as **"who requires this capability?"**, **"where does
 > this dependency point?"**, and **"what must not leak across the
 > Primitives boundary?"**.
@@ -78,6 +73,365 @@ produced it.
 > \[!CAUTION\] Do not treat examples in this document as frozen PHP APIs
 > unless explicitly marked as an invariant. Most code snippets are
 > conceptual contracts used to communicate responsibility.
+
+## 0.1 Operational reading model
+
+This canonical has two reading speeds.
+
+**First orientation.** A new engineer or agent should read enough of the
+canonical to understand the Primitives purpose, boundary, vocabulary,
+architectural thesis, accepted decisions, and deliberately open
+decisions.
+
+**During execution.** The executor should keep the **Counter-Proof
+Control Surface** in section 0B as the active architectural index. The
+counter-proofs are compressed representations of deeper canonical
+knowledge; they do not replace that knowledge.
+
+**On doubt or deviation.** When a counter-proof raises doubt, fails to
+hold, or cannot be resolved confidently, follow its **Deep References**
+directly to the authoritative detailed sections. Do not repeatedly
+reread the entire canonical when the relevant architectural knowledge is
+already indexed.
+
+**Before delivery.** Every counter-proof in the declared assessment
+coverage must be challenged. An executor records `PASS`, `N/A`, or
+`UNRESOLVED` according to the reporting semantics defined by the
+companion `COUNTER-PROOF-REPORT.md`.
+
+**Independent verification.** A reviewer independently challenges the
+delivered result against the same counter-proofs and records `PASS`,
+`N/A`, or `FAIL`. The reviewer does not inherit the executor's states as
+conclusions.
+
+The companion report defines the operational recording protocol,
+provenance fields, evidence references, FULL/PARTIAL coverage, immutable
+report history, and the Executor/Independent Reviewer templates. It does
+**not** define Primitives architecture. This canonical remains
+authoritative for the meaning and required properties of every
+counter-proof.
+
+Material implementation work evaluated through this mechanism is
+identified by its project work identity, a **PIP (PayCrypto.Me Improvement Proposal)**.
+PIP lifecycle and conventions are governed by the PayCrypto.Me PIP Specification;
+this canonical uses the PIP only as the identity of the material work being governed
+and evaluated.
+
+Conceptually:
+
+``` text
+validated requirement / PIP
+          |
+          v
+planning and implementation
+          |
+          v
+EXECUTOR COUNTER-PROOF GATE
+          |
+          +-- doubt / violation / unresolved
+          |          |
+          |          v
+          |    investigate / revise
+          |          |
+          +----------+
+          |
+          v
+candidate result
+          |
+          v
+INDEPENDENT COUNTER-VERIFICATION
+          |
+     +----+----+
+     |         |
+ PASS / N/A   FAIL
+     |         |
+     v         v
+ compliant   return to execution
+ result          |
+                 +--> partial corrective cycle when appropriate
+```
+
+A later corrective cycle does not rewrite historical reports. It creates
+new immutable reports. A PARTIAL cycle may reassess only explicitly
+declared counter-proofs, plus any additional counter-proofs materially
+affected by the change.
+
+------------------------------------------------------------------------
+
+# 0A. Canonical Terminology
+
+This section defines only PayCrypto.Me-specific, locally coined, or locally specialized terminology whose intended meaning cannot be safely inferred from the technical expertise expected of this canonical's audience.
+
+It is **not** a glossary of software engineering, cryptography, Bitcoin, or protocol terminology. Standard technical terms are defined in place only when Primitives gives them additional architectural semantics.
+
+**PIP — PayCrypto.Me Improvement Proposal**  
+Project-wide mechanism and stable work identity for a material proposed change to PayCrypto.Me. PIP lifecycle, storage, and proposal conventions are governed by the **PayCrypto.Me PIP Specification**. A PIP identifies the work; it does not itself define Primitives architecture.
+
+**CP — Counter-Proof**  
+Stable identifier prefix for a Counter-Proof in this canonical's execution-time Control Surface (`CP-01`, `CP-02`, ...). A CP challenges whether a material result preserves a required Primitives architectural property.
+
+**OWN / COMPOSE / DELEGATE**  
+Primitives-specific responsibility model defined normatively in §10. The terms are used together as an architectural decision framework, not merely in their ordinary English meanings.
+
+**Consumer**  
+PayCrypto.Me architectural role inside the surrounding canonical topology that uses the SDK. It does not mean any generic consumer of the public Primitives library.
+
+**External Project**  
+A project outside the PayCrypto.Me architectural topology that independently consumes the public Primitives library.
+
+---
+
+# 0B. Counter-Proof Control Surface
+
+The Counter-Proof Control Surface is the compact execution-time index of
+this canonical. It exists to reduce retrieval cost without reducing
+architectural rigor.
+
+> **Counter-proofs constrain architectural outcomes, not implementation
+> techniques.**
+
+They define properties a compliant implementation must preserve. They
+must not prescribe implementation techniques where this canonical
+deliberately leaves implementation open.
+
+> **Counter-Proof Discipline**
+>
+> Whenever an implementation decision introduces or changes a
+> capability, composition, definition, adapter, dependency, semantic
+> type, execution path, protocol-specific behavior, or another material
+> Primitives decision, the executor MUST challenge the decision against
+> every applicable counter-proof in the declared coverage.
+>
+> Passing tests or satisfying the immediate use case does not waive this
+> gate. If an applicable counter-proof cannot be satisfied or
+> conclusively demonstrated, the executor records it as `UNRESOLVED`;
+> that disclosure is not canonical compliance.
+>
+> `N/A` means only that a counter-proof is genuinely outside the scope
+> of the assessed decision. It MUST be justified. `N/A` never removes
+> the underlying canonical invariant from the architecture.
+>
+> The independent reviewer MUST challenge both executor `PASS` results
+> and the legitimacy of every executor-declared `N/A`. A reviewer `FAIL`
+> returns the affected work to execution.
+>
+> Passing the current use case is not sufficient. A result is
+> canonical-compliant only when independent verification leaves no
+> applicable counter-proof failed or unresolved.
+
+The counter-proofs are intentionally ordered as a cognitive progression:
+**reason for existence -\> reuse -\> divergence/data -\> composition -\>
+ownership -\> external implementation boundaries -\>
+replaceability/containment -\> domain isolation -\> security boundary
+-\> protocol correctness -\> verification -\> scope discipline**.
+
+## CP-01 --- Concrete reason for existence
+
+**Counter-proof:** Is this capability, abstraction, dependency, class,
+interface, or behavior present because a validated concrete requirement
+needs it, rather than because it is foreseeable, taxonomically
+attractive, or available in a library?
+
+**Required property:** Primitives grows from admitted evidence. Every
+material abstraction and production dependency has a concrete reason to
+exist.
+
+**Deep References:** §2 Architectural thesis; §3 Architecture
+orientation; §23 Dependency justification tree; §28 Evidence-driven
+abstractions; §28A Contribution Divergence Principle; §37 Architectural
+anti-goals.
+
+## CP-02 --- Reuse and late divergence
+
+**Counter-proof:** Does the solution duplicate behavior that remains
+semantically identical instead of sharing it until the exact point where
+behavior actually diverges?
+
+**Required property:** Identity is not divergence. Shared behavior
+remains shared; specialization begins only at demonstrated semantic
+divergence.
+
+**Deep References:** §7 Capability graph, not a hierarchy of
+blockchains; §17 Bitcoin-like and other protocol families; §18 Fork only
+at the real divergence point; §28A Contribution Divergence Principle.
+
+## CP-03 --- Data versus behavior
+
+**Counter-proof:** Does this decision introduce behavioral structure for
+a difference that can be faithfully represented as validated definition
+data?
+
+**Required property:** Parameter variation remains declarative data. New
+behavioral structure requires actual behavioral divergence.
+
+**Deep References:** §9 Definitions: data is not behavior; §18 Fork only
+at the real divergence point; §28A Contribution Divergence Principle.
+
+## CP-04 --- Composition before capability expansion
+
+**Counter-proof:** Can the requirement be satisfied by reusing and
+recomposing existing capabilities before introducing a new capability or
+execution path?
+
+**Required property:** Existing capabilities and compositions are
+preferred; new capabilities exist only for genuinely new behavior.
+
+**Deep References:** §8 Primitive Composition Principle; §28
+Evidence-driven abstractions; §28A Contribution Divergence Principle;
+§35 Architecture fitness tests.
+
+## CP-05 --- Ownership and delegation boundary
+
+**Counter-proof:** Does this decision cause Primitives to own
+cryptographic, elliptic-curve, standardized low-level, or equivalent
+specialized machinery when Primitives only needs to own its contracts,
+semantics, invariants, or composition?
+
+**Required property:** Primitives owns its architectural semantics and
+composition and delegates suitable low-level machinery. **We own the
+composition, not the cryptography.**
+
+**Deep References:** §10 OWN / COMPOSE / DELEGATE; §10A Implementation
+Delegation Principle; §13 Hashing and encoding.
+
+## CP-06 --- Implementation-independent semantic boundary
+
+**Counter-proof:** Would the Primitives-owned contract, semantic type,
+error, or composition still make architectural sense if the selected
+external implementation disappeared and were replaced by one with a
+materially different API?
+
+**Required property:** External implementations satisfy Primitives
+contracts; they do not shape or define them. Library-specific types do
+not cross Primitives capability boundaries.
+
+**Deep References:** §11 Minimal secp256k1 contract; §12 BIP32
+responsibility; §20 Core must not assemble cryptographic LEGO; §24
+External projects: implementation and reference roles; §25 Backend
+replacement policy.
+
+## CP-07 --- Replaceability, verification, and containment
+
+**Counter-proof:** If the selected implementation becomes unavailable,
+incorrect, incompatible, or undesirable, can it be replaced explicitly
+and fail-closed inside the Primitives boundary without forcing
+implementation changes into higher domains?
+
+**Required property:** Backend choice is contained, deliberate,
+replaceable, and independently verifiable; replacement is never silent
+runtime fallback.
+
+**Deep References:** §24 External projects: implementation and reference
+roles; §25 Backend replacement policy; §26 Verification strategy; §27
+Architectural resilience model.
+
+## CP-08 --- Primitives and higher-domain isolation
+
+**Counter-proof:** Does this decision leak low-level implementation
+knowledge, Primitives internals, or external-library types upward, pull
+higher-domain objects downward, or make a local Primitives capability
+depend unnecessarily on surrounding/cloud infrastructure?
+
+**Required property:** The Primitives boundary remains low-level,
+implementation-independent, locally usable for the capabilities it owns,
+and isolated from surrounding-domain internals.
+
+**Deep References:** §1 Primitives in the surrounding architecture; §1.1
+Contextual dependency rule; §1.2 Product constraint visible from
+Primitives; §20 Core must not assemble cryptographic LEGO; §22 No
+universal CryptoManager.
+
+## CP-09 --- Public-key-only security boundary
+
+**Counter-proof:** Does this decision introduce private material,
+signing, hardened/private derivation, or another sensitive capability
+without a newly admitted concrete requirement that explicitly changes
+the current security scope?
+
+**Required property:** Primitives v1 remains public-key-only while the
+admitted requirements require no private material.
+
+**Deep References:** §5 Concrete evidence that grounded Primitives v1;
+§15 Public-key-only v1 security property; §16 Future resilience: Taproot
+as a fitness test, not a feature; §31 Accepted decisions.
+
+## CP-10 --- Protocol semantic correctness
+
+**Counter-proof:** Is Primitives preserving the exact protocol semantics
+it owns instead of inventing behavior, inheriting accidental library
+behavior, or collapsing distinct protocol responsibilities into one
+abstraction?
+
+**Required property:** Owned protocol semantics are explicit,
+deterministic, fail-closed where required, and separated where the
+protocols themselves are distinct.
+
+**Deep References:** §12 BIP32 responsibility; §12.2 SLIP-132
+separation; §14 Bitcoin address compositions in v1; §33 Important
+unresolved correctness question.
+
+## CP-11 --- Independent evidence and verification
+
+**Counter-proof:** What recoverable specification evidence,
+official/reference vectors, regression cases, independent
+implementation, differential check, or equivalent evidence demonstrates
+that the material behavior is correct?
+
+**Required property:** Sensitive protocol behavior is not accepted
+merely because one implementation or one test path agrees with itself.
+Verification uses independent anchors appropriate to the behavior being
+established.
+
+**Deep References:** §24 External projects: implementation and reference
+roles; §26 Verification strategy; §27 Architectural resilience model;
+§33 Important unresolved correctness question; §34 Recommended
+continuation sequence.
+
+## CP-12 --- Scope and deliberate openness
+
+**Counter-proof:** Is this decision implementing or freezing behavior
+because a validated requirement needs it now, or is it prematurely
+resolving a deliberately open decision or implementing a future
+possibility?
+
+**Required property:** Architecture is extensible but demand-driven.
+Open implementation decisions remain open until evidence resolves them;
+future fitness cases do not become current product scope by
+anticipation.
+
+**Deep References:** §3 Architecture orientation; §16 Future resilience:
+Taproot as a fitness test, not a feature; §19 Non-Bitcoin protocols are
+architecture fitness tests; §28 Evidence-driven abstractions; §32
+Deliberately open decisions; §34 Recommended continuation sequence; §37
+Architectural anti-goals.
+
+## 0B.1 Executor and independent reviewer semantics
+
+The same counter-proofs are used by two different actors with different
+state vocabularies.
+
+``` text
+EXECUTOR                       INDEPENDENT REVIEWER
+---------------------------    ---------------------------
+PASS                           PASS
+N/A + justification            N/A + justification
+UNRESOLVED + justification     FAIL + finding
+```
+
+For both actors, `PASS` requires no justification. A short note MAY be
+added only when materially useful to future execution, review, or
+understanding; it should not merely restate the counter-proof.
+
+For the executor, `UNRESOLVED` is disclosure, not compliance. It may
+document an objective blocker, missing third-party evidence, unresolved
+correctness question, or another material reason the counter-proof
+cannot yet be conclusively satisfied.
+
+For the reviewer, `FAIL` is an independent rejection of the assessed
+result against an applicable counter-proof.
+
+The operational report format and provenance requirements are delegated
+to `COUNTER-PROOF-REPORT.md`.
 
 ------------------------------------------------------------------------
 
@@ -191,7 +545,6 @@ Consumer
 local cryptographic/protocol capability
 ```
 
-
 ## 1.3 New-major context
 
 The current WooCommerce implementation is not being treated as the
@@ -241,13 +594,14 @@ Full definition:
 
 > **PayCrypto.Me Primitives is a demand-driven low-level cryptographic
 > and protocol capability layer whose composition exists in response to
-> validated concrete requirements, while keeping implementations isolated,
-> verifiable, and replaceable.**
+> validated concrete requirements, while keeping implementations
+> isolated, verifiable, and replaceable.**
 
 PayCrypto.Me Core is the first concrete consumer and primary initial
 requirement source, not the exclusive consumer. A requirement from any
-source becomes architectural evidence only after passing the same capability,
-composition, divergence, security, and evidence gates defined by this domain.
+source becomes architectural evidence only after passing the same
+capability, composition, divergence, security, and evidence gates
+defined by this domain.
 
 ## 2.1 First consumer does not mean exclusive consumer
 
@@ -403,16 +757,16 @@ When revising this canonical file:
 > rejected alternative, open question, or continuation requirement
 > merely to shorten the document.**
 
-If a materialized or accepted Primitives decision becomes obsolete, replace
-it with an explicit superseding decision and rationale. Absence is not an
-acceptable migration mechanism for architectural knowledge that legitimately
-belongs to this domain.
+If a materialized or accepted Primitives decision becomes obsolete,
+replace it with an explicit superseding decision and rationale. Absence
+is not an acceptable migration mechanism for architectural knowledge
+that legitimately belongs to this domain.
 
 Exploratory concepts that are rejected or determined to be outside the
-Primitives domain before becoming part of its materialized architecture do
-not require permanent historical memorialization in the current canonical.
-The preservation rule protects domain knowledge, not every discarded
-exploration.
+Primitives domain before becoming part of its materialized architecture
+do not require permanent historical memorialization in the current
+canonical. The preservation rule protects domain knowledge, not every
+discarded exploration.
 
 ------------------------------------------------------------------------
 
@@ -470,11 +824,6 @@ private-key handling
 
 This evidence is why Primitives v1 is intentionally public-key-only.
 
-The observed account depth and `0/index` path are reference facts, not public
-contract defaults. The admitted operation takes an explicit relative public
-path, network definition and address policy. It does not allocate indices,
-infer wallet policies or silently rewrite network/version metadata.
-
 The old implementation also revealed implementation leakage: GMP is
 required by parts of the current Base58/Buffertools/PhpEcc path, but GMP
 is **not a product capability**. Therefore:
@@ -486,22 +835,17 @@ That distinction is representative of the purpose of Primitives.
 
 ------------------------------------------------------------------------
 
-# 6. Conceptual capability map
-
-This map expresses semantic relationships, not frozen PHP objects or an executed
-provider graph. Its arrows include composition/data relationships, not only code
-dependencies. Final implementation diagrams follow provider qualification and
-contract decisions. Non-Bitcoin definitions illustrate extension, not delivery.
+# 6. Final conceptual diagram
 
 ``` mermaid
 flowchart TB
-    CORE["External capability request"]
+    CORE["PayCrypto.Me Core<br/>Payment / WalletPolicy / Allocation / ReceivingSource"]
+    PAD["PublicAddressDeriver"]
 
     CORE --> PAD
 
     subgraph PRIM["PayCrypto.Me Primitives"]
       direction TB
-      PAD["PublicAddressDeriver"]
 
       subgraph CRYPTO["Crypto capabilities"]
         SHA["Sha256"]
@@ -563,7 +907,7 @@ flowchart TB
     subgraph IMPL["Implementation adapters"]
       PHP["Trusted runtime hashing"]
       PARA["paragonie/ecc<br/>initial candidate"]
-      ALT["Alternative backend<br/>qualification required"]
+      ALT["Alternative backend<br/>future"]
     end
 
     SHA --> PHP
@@ -577,14 +921,17 @@ flowchart TB
 
 ``` text
 ┌────────────────────────────────────────────────────────────────────┐
-│                    EXTERNAL CAPABILITY REQUEST                     │
+│                         PAYCRYPTO.ME CORE                          │
+│                                                                    │
+│  Payment / WalletPolicy / Allocation / ReceivingSource / ...       │
+│                                                                    │
+│                    PublicAddressDeriver                            │
 └──────────────────────────────┬─────────────────────────────────────┘
                                │ capability request
                                ▼
-════════════════════════ PRIMITIVES BOUNDARY ═══════════════════════
+════════════════════ CORE / PRIMITIVES BOUNDARY ═════════════════════
 
                     PAYCRYPTO.ME PRIMITIVES
-                       PublicAddressDeriver
 
         ┌────────────────┬────────────────┬────────────────┐
         ▼                ▼                ▼                ▼
@@ -802,18 +1149,6 @@ keys everywhere.
 > **Definitions contain data; strategies/capabilities contain
 > behavior.**
 
-Definition loading validates supported schemas and produces immutable semantic
-views. Definitions may name supported protocol profiles, but never vendor
-classes, executable steps or fallback rules. A profile identifier cannot supply
-behavior that has not been implemented and qualified. Requests select explicit
-policies and definitions; compatibility is checked rather than resolved through
-silent overrides. Backend selection belongs to explicit construction/wiring.
-
-A typed-request invocable is a possible public PHP surface, not an accepted
-requirement for every capability. Its qualification must preserve explicit
-composition, localized validation and independence of lower capabilities from
-the complete request or the callers above them. Concrete APIs remain open.
-
 ------------------------------------------------------------------------
 
 # 10. OWN / COMPOSE / DELEGATE
@@ -867,7 +1202,6 @@ SHA-256
 RIPEMD-160
 HMAC-SHA512
 secp256k1 mathematical machinery
-standardized encoders/decoders, including structural codecs
 ```
 
 > **Primitives does not eliminate dependencies; it prevents dependencies
@@ -883,11 +1217,11 @@ because an implementation appears small, understandable, or easy.
 
 > **PayCrypto.Me Primitives owns capability contracts, protocol
 > semantics, composition, invariants, definitions, semantic value
-> objects, and integration boundaries. It does not implement cryptographic
-> algorithms, elliptic-curve mathematics or standardized encoders/decoders.
-> These are delegated to researched and qualified language/runtime facilities
-> or libraries. Missing suitable providers require further research or an
-> explicit scope decision, not a local algorithm or codec implementation.**
+> objects, and integration boundaries. It does not seek ownership of
+> cryptographic algorithms, elliptic-curve mathematics, standardized
+> low-level codecs, or equivalent specialized machinery when suitable
+> language/runtime facilities or specialized libraries can provide
+> them.**
 
 Short form:
 
@@ -1101,14 +1435,6 @@ ECC owns ECC validity/mechanics.
 The BIP32 layer must not know backend point objects or generic curve
 operations.
 
-Semantic ownership does not preselect a handwritten CKDpub implementation.
-Provider sourcing and integration remain research decisions. A complete BIP32
-provider may hide its own ECC/codec dependencies: qualification must identify
-the actual execution path and prove the required replacement boundaries. An
-unused adapter injected beside that provider is not architectural evidence.
-Any different integration boundary requires explicit reconciliation before
-selection; algorithm and codec gaps must not be filled with local implementations.
-
 ## 12.1 Extended public keys
 
 Conceptually:
@@ -1185,11 +1511,8 @@ Bech32
 `Base58Check` is conceptually a composition of Base58 plus checksum
 semantics.
 
-Base58, Base58Check and Bech32 encoding/decoding implementations are delegated.
-Provider selection remains open; implementation ownership does not. Owning
-protocol semantics or composing hashing operations does not authorize writing
-a local standardized codec. This explicitly supersedes the earlier open
-ownership wording (see section 42.3).
+Whether Base58 and Bech32 are implemented by PayCrypto or delegated
+remains open pending implementation research.
 
 ------------------------------------------------------------------------
 
@@ -1547,22 +1870,23 @@ PayCrypto Core
 
 ## Primitives Dependency Principle
 
-> **Every production dependency of PayCrypto.Me Primitives must be justified
-> by a concrete admitted Primitives capability backed by a validated
-> requirement.**
+> **Every production dependency of PayCrypto.Me Primitives must be
+> justified by a concrete admitted Primitives capability backed by a
+> validated requirement.**
 
-PayCrypto.Me Core remains the first concrete consumer and primary initial
-requirement source. Requirements originating elsewhere do not enter the
-architecture automatically; they must pass the same evidence, composition,
-divergence, and security gates. A dependency with no traceable path to an
-admitted Primitives capability should not ship in production.
+PayCrypto.Me Core remains the first concrete consumer and primary
+initial requirement source. Requirements originating elsewhere do not
+enter the architecture automatically; they must pass the same evidence,
+composition, divergence, and security gates. A dependency with no
+traceable path to an admitted Primitives capability should not ship in
+production.
 
 ------------------------------------------------------------------------
 
 # 24. External projects: implementation and reference roles
 
-External projects may relate to Primitives in distinct roles without their
-APIs defining the Primitives architecture.
+External projects may relate to Primitives in distinct roles without
+their APIs defining the Primitives architecture.
 
   ---------------------------------------------------------------------
   Role                               Meaning
@@ -1574,10 +1898,10 @@ APIs defining the Primitives architecture.
                                      or compatibility verification
   ---------------------------------------------------------------------
 
-The same project may serve both roles, but one role does not imply the other.
-Information from an external project may become evidence for a Primitives
-decision when it is relevant to a capability, implementation, or compatibility
-constraint.
+The same project may serve both roles, but one role does not imply the
+other. Information from an external project may become evidence for a
+Primitives decision when it is relevant to a capability, implementation,
+or compatibility constraint.
 
 Examples conceptually:
 
@@ -1638,19 +1962,6 @@ known problem / lifecycle event
 
 > **Backend replacement is explicit, verified, and fail-closed.**
 
-For each library-backed capability boundary, qualify two distinct suitable
-libraries through separate adapters against the same semantic conformance suite
-and consuming compositions. Prefer materially different usage APIs. Reuse
-contracts, entities and compositions; adapters may differ. Replacement changes
-provider wiring, not semantic contracts to accommodate vendor APIs. A missing
-qualified second provider leaves the architecture check pending.
-
-Only one provider need ship in production; the alternative belongs in
-verification tooling. Runtime facilities need conformance and independent
-evidence, not artificial wrappers counted as additional libraries. Two different
-library APIs do not prove cryptographic independence if both use the same
-underlying implementation. Record that distinction in review evidence.
-
 ------------------------------------------------------------------------
 
 # 26. Verification strategy
@@ -1682,15 +1993,6 @@ For BIP32, the compatibility gate should include:
 
 Differential disagreement means **investigate**. Majority output is not
 automatically truth.
-
-Review evidence must link requirements to contracts, definitions/schema revisions,
-executed compositions, exact providers, vector provenance, reproducible commands
-and results. Cover success, failure and unsupported combinations, including
-controlled rare outcomes with clearly identified injection seams. Record limits,
-unresolved gaps and the independence of each reference for the property checked.
-Artifact hashes establish integrity, not external endorsement. Implementation
-readiness and an independent organization's actual review outcome are separate
-states; preserve the reviewed snapshot and track findings and subsequent changes.
 
 ------------------------------------------------------------------------
 
@@ -1936,114 +2238,15 @@ Consequently:
 -   architectural behavior must never be changed implicitly by code
     drift.
 
-# 30. Glossary
+# 30. Terminology reference
 
-  ---------------------------------------------------------------------
-  Term                               Canonical meaning
-  ---------------------------------- ----------------------------------
-  **Primitive**                      Small cryptographic/protocol
-                                     capability required by a concrete
-                                     higher-level behavior.
+Canonical PayCrypto.Me-specific terminology required to enter and operate this document is defined early in **§0A Canonical Terminology**.
 
-  **Capability**                     PayCrypto-owned behavioral
-                                     contract independent of a specific
-                                     implementation.
+Domain and protocol terms such as BIP32, CKDpub, secp256k1, Base58Check, Bech32, P2PKH, P2SH-P2WPKH, and P2WPKH are intentionally **not** duplicated into a general technical glossary. Their meaning is either established by the relevant technical domain or introduced where Primitives assigns architectural semantics to them.
 
-  **Definition**                     Declarative data that
-                                     parameterizes behavior without
-                                     introducing protocol logic.
+This placement is deliberate: terminology exists to remove hidden project-context dependencies, not to restate knowledge reasonably expected from the technical audience.
 
-  **Composition**                    Deterministic assembly of smaller
-                                     capabilities into a larger
-                                     behavior.
-
-  **Protocol Composition**           Capability graph realizing a
-                                     concrete protocol/address flow.
-
-  **Adapter**                        Translation between a PayCrypto
-                                     capability contract and an
-                                     external implementation.
-
-  **ExtendedPublicKey**              PayCrypto representation of public
-                                     BIP32 extended-key material.
-
-  **ExtendedPublicKeyCodec**         Encodes/decodes serialized BIP32
-                                     public extended keys via
-                                     lower-level encoding capabilities.
-
-  **DerivationPath**                 HD derivation path representation
-                                     independent of
-                                     Payment/Order/WooCommerce.
-
-  **Bip32PublicChildDeriver**        Owner of CKDpub protocol semantics
-                                     required for public derivation.
-
-  **HmacSha512**                     Delegated cryptographic capability
-                                     required by CKDpub.
-
-  **Sha256**                         Delegated SHA-256 capability.
-
-  **Ripemd160**                      Delegated RIPEMD-160 capability.
-
-  **Hash160**                        Composition
-                                     `RIPEMD160(SHA256(data))`.
-
-  **Secp256k1PublicKeyTweak**        Minimal currently justified ECC
-                                     capability: `P + tweak·G → Q`.
-
-  **CompressedPublicKey**            PayCrypto-owned public-key value
-                                     representation; never a backend
-                                     Point object.
-
-  **Base58**                         Reusable encoding capability.
-
-  **Base58Check**                    Base58 plus checksum semantics.
-
-  **Bech32**                         Reusable encoding capability used
-                                     by applicable address/protocol
-                                     compositions.
-
-  **SLIP-132**                       Bitcoin-family semantics for
-                                     alternative extended-key
-                                     versions/address-policy
-                                     association.
-
-  **P2PKH**                          Bitcoin Pay-to-Public-Key-Hash
-                                     address composition.
-
-  **P2SH-P2WPKH**                    Bitcoin nested-SegWit address
-                                     composition.
-
-  **P2WPKH**                         Bitcoin native-SegWit address
-                                     composition.
-
-  **Definition Registry**            Resolves declarative definitions;
-                                     must not contain cryptographic
-                                     behavior.
-
-  **OWN**                            PayCrypto owns protocol/product
-                                     semantics.
-
-  **COMPOSE**                        PayCrypto owns behavior assembled
-                                     from smaller capabilities.
-
-  **DELEGATE**                       PayCrypto owns the contract but
-                                     delegates sensitive machinery.
-
-  **Consumer**                       Architectural role inside the
-                                     PayCrypto.Me topology that uses the
-                                     SDK.
-
-  **External Project**               Project outside the PayCrypto.Me
-                                     architectural topology that
-                                     independently consumes the public
-                                     Primitives library.
-
-  **Backend**                        Concrete implementation satisfying
-                                     a low-level capability.
-  ---------------------------------------------------------------------
-
-------------------------------------------------------------------------
+---
 
 # 31. Accepted decisions --- frozen at this checkpoint
 
@@ -2084,9 +2287,10 @@ silently changed:
     it.
 -   Production uses deliberate backend selection, not silent runtime
     crypto fallback.
--   Every production dependency must be justified by an admitted Primitives
-    capability backed by a validated concrete requirement.
--   Verification and compatibility testing are part of Primitives resilience.
+-   Every production dependency must be justified by an admitted
+    Primitives capability backed by a validated concrete requirement.
+-   Verification and compatibility testing are part of Primitives
+    resilience.
 
 ------------------------------------------------------------------------
 
@@ -2116,7 +2320,7 @@ silently changed:
 These are intentionally **not frozen**:
 
 -   final Base58 implementation;
--   final delegated Base58Check provider;
+-   final Base58Check implementation ownership;
 -   final Bech32 implementation;
 -   definitive secp256k1 backend;
 -   whether `paragonie/ecc` becomes production or remains
@@ -2159,7 +2363,7 @@ This should become an explicit compatibility/test requirement.
 
 A future engineer/agent should continue from here in this order.
 
-## Step 1 --- Sketch minimal semantic contracts
+## Step 1 --- Freeze minimal semantic contracts
 
 Design only the contracts justified by the Bitcoin XPUB requirement,
 especially:
@@ -2177,10 +2381,9 @@ Secp256k1PublicKeyTweaker
 Base58 / Base58Check
 Bech32
 Bitcoin address compositions
-Definition schema/loading boundary
+Definition schema/registry boundary
 ```
 
-Qualify sketches through research and real adapters before freezing them.
 Do not freeze class names merely because they appear here.
 
 ## Step 2 --- Feasibility/dependency matrix
@@ -2197,10 +2400,9 @@ replacement options
 production dependency footprint
 ```
 
-Investigate existing Base58 providers and their deterministic backend selection
-and runtime requirements. GMP-free providers may be compared, but writing local
-byte-array/divmod codecs is outside the implementation boundary. GMP is permitted
-for the initial ECC provider; its necessity remains a provider property.
+Specifically investigate whether Base58 can be implemented
+deterministically without GMP using byte-array/divmod techniques rather
+than assuming big integers are required.
 
 ## Step 3 --- ECC backend spike
 
@@ -2210,46 +2412,49 @@ PayCrypto contract**, not by exposing its API.
 Also use independent/reference implementations to verify that the
 contract is not accidentally Paragonie-shaped.
 
-Apply section 25's two-library check to every library-backed boundary. Keep
-architectural replacement evidence distinct from independent mathematical checks.
-
 ## Step 4 --- Compatibility gate
 
-Build official BIP32 and address vectors before implementing the new production
-capability. Reference regressions require independent justification; old behavior
-is not a compatibility mandate. Resolve invalid-child semantics and provider
-discrepancies, record explicit selections and freeze qualified contracts.
+Build official BIP32 and address vectors before replacing the old
+production behavior.
 
 ## Step 5 --- Implement one vertical slice
 
 Prefer an end-to-end derived Bitcoin address slice:
 
 ``` text
-Standalone Primitives request: public extended key + relative path + definition + policy
+Consumer test
    ↓
-Public address operation and admitted protocol composition
+SDK
    ↓
-Qualified public derivation + key operations + hashing + delegated encoding
+Core
    ↓
-Public address result or specified failure
+PublicAddressDeriver
+   ↓
+Primitives
+   ↓
+BIP32 + secp256k1 + hashing + encoding
+   ↓
+address
 ```
 
 Do not build all future primitives first.
 
-Complete P2PKH, P2SH-P2WPKH and P2WPKH on validated mainnet/testnet definitions.
-The first completed branch is a milestone, not completion of the whole slice.
-Fixed-address and hosted-payment flows are not additional deliverables here.
-
 ## Step 6 --- Expand only from concrete requirements
 
-After the first vertical slice, expand Primitives only when a new validated
-concrete requirement requires a capability or protocol composition that
-legitimately belongs to this domain. Apply the same evidence-driven,
-composition-first and divergence rules before expanding scope.
+After the first vertical slice, expand Primitives only when a new
+validated concrete requirement requires a capability or protocol
+composition that legitimately belongs to this domain. Apply the same
+evidence-driven, composition-first and divergence rules before expanding
+scope.
 
 ------------------------------------------------------------------------
 
 # 35. Architecture fitness tests
+
+These detailed fitness tests remain part of the architectural reference.
+The Counter-Proof Control Surface in §0B is the execution-time
+compressed index and links back into this deeper material; it does not
+replace these tests or their rationale.
 
 Every proposal should be challenged with these questions.
 
@@ -2353,8 +2558,9 @@ evidence/reference, not mandatory scaffolding for the new runtime.
 
 ## 36.2 Treating BitWasp as the architecture
 
-Rejected. BitWasp may be a production or reference implementation depending
-on later evidence, but its API and class hierarchy do not define PayCrypto.
+Rejected. BitWasp may be a production or reference implementation
+depending on later evidence, but its API and class hierarchy do not
+define PayCrypto.
 
 ## 36.3 Generic `Secp256k1` mirroring ECC math
 
@@ -2441,9 +2647,9 @@ Primitives must also avoid:
 >
 > **We do not build a generic cryptocurrency library.**
 >
-> We implement only capabilities justified by validated concrete requirements.
-> PayCrypto.Me Core is the first concrete consumer and primary initial
-> requirement source, not the exclusive consumer.
+> We implement only capabilities justified by validated concrete
+> requirements. PayCrypto.Me Core is the first concrete consumer and
+> primary initial requirement source, not the exclusive consumer.
 >
 > We share behavior until the exact point where protocol semantics
 > diverge.
@@ -2469,8 +2675,8 @@ Primitives must also avoid:
 > We design extension points for foreseeable change, but we do not
 > implement hypothetical requirements.
 >
-> Every production dependency must be traceable to an admitted Primitives
-> capability backed by a validated concrete requirement.
+> Every production dependency must be traceable to an admitted
+> Primitives capability backed by a validated concrete requirement.
 >
 > Cryptographic backend replacement is explicit, verified, and
 > fail-closed --- never an invisible runtime fallback.
@@ -2520,12 +2726,12 @@ following interpretation:
 > capability-driven composition, public-key-only scope, minimal
 > implementation-independent secp256k1 contracts, and the
 > OWN/COMPOSE/DELEGATE model. Do not introduce future capabilities
-> without a concrete requirement. As the first implementation phase, refine
-> the minimal contracts and produce a capability/dependency feasibility
-> matrix, with special attention to BIP32 invalid-child semantics,
-> official vectors, Base58/GMP independence, and an ECC adapter spike
-> using paragonie/ecc as an initial candidate rather than a permanent
-> architectural dependency.
+> without a concrete requirement. As the first implementation phase,
+> refine the minimal contracts and produce a capability/dependency
+> feasibility matrix, with special attention to BIP32 invalid-child
+> semantics, official vectors, Base58/GMP independence, and an ECC
+> adapter spike using paragonie/ecc as an initial candidate rather than
+> a permanent architectural dependency.
 
 If a proposal contradicts a frozen decision above, state the
 contradiction explicitly and record a new decision before proceeding.
@@ -2636,99 +2842,129 @@ Primitives domain**.
 
 ## 42.1 v1.3 revision record
 
-This revision supersedes v1.2 and is primarily a **domain-boundary correctness
-revision**. It preserves the established Primitives capability architecture
-while removing material that did not belong to the Primitives domain and
-correcting wording that had become inconsistent with accepted Primitives
-decisions.
+This revision supersedes v1.2 and is primarily a **domain-boundary
+correctness revision**. It preserves the established Primitives
+capability architecture while removing material that did not belong to
+the Primitives domain and correcting wording that had become
+inconsistent with accepted Primitives decisions.
 
 Principal changes:
 
-1. Primitives resilience is expressed through the properties Primitives owns:
-   replaceability, verification, and containment.
-2. External projects are modeled only through roles relevant to Primitives
-   architecture: production implementation and reference implementation.
-3. Core remains the first concrete consumer and primary initial requirement
-   source, but requirement and dependency principles are no longer phrased as
-   Core-exclusive.
-4. References to surrounding PayCrypto.Me domains are intentionally shallow
-   and exist only where necessary to define the Primitives boundary.
-5. Canonical preservation is clarified: architectural knowledge that
-   legitimately belongs to the governed domain must not disappear silently;
-   exploratory material determined not to belong to the domain before
-   materialization need not be preserved in the current canonical.
+1.  Primitives resilience is expressed through the properties Primitives
+    owns: replaceability, verification, and containment.
+2.  External projects are modeled only through roles relevant to
+    Primitives architecture: production implementation and reference
+    implementation.
+3.  Core remains the first concrete consumer and primary initial
+    requirement source, but requirement and dependency principles are no
+    longer phrased as Core-exclusive.
+4.  References to surrounding PayCrypto.Me domains are intentionally
+    shallow and exist only where necessary to define the Primitives
+    boundary.
+5.  Canonical preservation is clarified: architectural knowledge that
+    legitimately belongs to the governed domain must not disappear
+    silently; exploratory material determined not to belong to the
+    domain before materialization need not be preserved in the current
+    canonical.
 
 No capability, protocol composition, requirement, guarantee, assumption,
-dependency choice, compatibility constraint, verification semantic, accepted
-Primitives invariant, or deliberately open Primitives decision was removed by
-this revision.
+dependency choice, compatibility constraint, verification semantic,
+accepted Primitives invariant, or deliberately open Primitives decision
+was removed by this revision.
 
 ## 42.2 v1.4 revision record
 
-This revision supersedes v1.3 and is the **implementation-entry consolidation**
-of the Primitives canonical. It does not introduce a new capability model or
-expand the domain. It closes the final documentary inconsistencies identified
-before implementation begins.
+This revision supersedes v1.3 and is the **implementation-entry
+consolidation** of the Primitives canonical. It does not introduce a new
+capability model or expand the domain. It closes the final documentary
+inconsistencies identified before implementation begins.
 
 Principal changes:
 
-1. The remaining obsolete external-project role is removed; external projects
-   are described only through Primitives-relevant production and reference
-   implementation roles.
-2. The continuation sequence no longer names surrounding-domain flows as a
-   Primitives roadmap. Expansion is permitted only when a validated concrete
-   requirement demands capability or protocol composition that legitimately
-   belongs to Primitives.
-3. Feasibility/dependency analysis, BIP32 invalid-child validation, official
-   vectors, Base58/GMP investigation, and the ECC adapter spike are explicitly
-   classified as the **first implementation phase**, rather than unresolved
-   architecture work that must precede implementation.
-4. The historical v1.2 replacement statement is phrased as historical status,
-   so this document has a single unambiguous current baseline: v1.4.
+1.  The remaining obsolete external-project role is removed; external
+    projects are described only through Primitives-relevant production
+    and reference implementation roles.
+2.  The continuation sequence no longer names surrounding-domain flows
+    as a Primitives roadmap. Expansion is permitted only when a
+    validated concrete requirement demands capability or protocol
+    composition that legitimately belongs to Primitives.
+3.  Feasibility/dependency analysis, BIP32 invalid-child validation,
+    official vectors, Base58/GMP investigation, and the ECC adapter
+    spike are explicitly classified as the **first implementation
+    phase**, rather than unresolved architecture work that must precede
+    implementation.
+4.  The historical v1.2 replacement statement was phrased as historical
+    status so that, at the v1.4 checkpoint, v1.4 was the single
+    unambiguous current baseline.
 
 No capability, protocol composition, requirement, guarantee, assumption,
-dependency choice, compatibility constraint, verification semantic, accepted
-Primitives invariant, deliberately open implementation decision, fitness test,
-or handoff constraint is removed by this consolidation.
+dependency choice, compatibility constraint, verification semantic,
+accepted Primitives invariant, deliberately open implementation
+decision, fitness test, or handoff constraint is removed by this
+consolidation.
 
-Per the canonical replacement policy, **v1.4 supersedes v1.3 and is the
-current source of truth for the PayCrypto.Me Primitives domain**.
+At the v1.4 checkpoint, per the canonical replacement policy, **v1.4
+superseded v1.3 as the canonical source of truth for the PayCrypto.Me
+Primitives domain**.
 
-## 42.3 Dated reconciliation — 2026-09-28
+## 42.3 v1.5 revision record
 
-This amendment records the explicit project instructions and first-capability
-planning decisions. It updates this v1.4 baseline in place; source revision
-identifies the exact text. It does not select production libraries or certify
-an implementation. The authority map and other domains are unchanged.
+This revision supersedes v1.4 and is the **execution-navigation and
+counter-verification consolidation** of the Primitives canonical.
 
-Superseded wording and its replacement:
+It does **not** introduce a new Primitives capability model, expand
+product scope, select previously open implementation choices, or
+prescribe coding techniques. The accepted architectural substance of
+v1.4 remains authoritative and is preserved.
 
-1. Sections 10A, 13.3 and 32 no longer leave local crypto/codec implementation
-   open. All cryptographic algorithms and standardized encoders/decoders are
-   delegated; only provider selection is open. Lack of a suitable provider means
-   research or explicit scope reconsideration. OWN still covers semantics,
-   invariants, definitions, operations and composition.
-2. Section 34 replaces local Base58 algorithm exploration with provider research,
-   and replaces a surrounding-domain integration slice with standalone Primitives
-   delivery. Old production output is evidence, not a preservation mandate.
-3. Contract sketches precede qualification; freezing follows real-provider
-   evidence. Two distinct libraries and separate adapters exercise every
-   library-backed boundary. API independence and mathematical independence are
-   different claims; one production provider remains sufficient.
-4. Section 12 makes BIP32 sourcing explicitly unresolved. Its conceptual
-   composition is not proof that a chosen provider exposes substitutable ECC
-   or codec boundaries. Qualification must show the executed path.
-5. Section 9 makes validation, immutable definition semantics, explicit policy
-   compatibility and provider-free data concrete. The typed-request invocable
-   remains a proposal, not a frozen API or a new architecture invariant.
-6. Section 6 is labeled a conceptual map and places the public operation inside
-   Primitives, without modeling caller internals. Final implementation diagrams
-   remain pending qualified providers and contracts.
-7. Section 26 requires traceable, reproducible review evidence and separates
-   review readiness from an actual independent review outcome.
+Principal changes:
 
-The [execution plan](../PLAN-FIRST-CAPABILITY.md) tracks scope, open decisions,
-candidate comparisons, contract responsibilities and exit gates. The
-[composition proposal](../research/public-address-composition-proposal.md)
-illustrates possible usage; it does not freeze classes or add Bitcoin Cash to
-the delivery. English remains the repository documentation language.
+1.  The document now defines an operational reading model with two
+    speeds: initial architectural orientation and a compact
+    execution-time control surface.
+2.  A cognitively ordered **Counter-Proof Control Surface** compresses
+    existing architectural invariants into twelve execution-time
+    counter-proofs.
+3.  Every counter-proof provides **Deep References** back to the
+    detailed canonical sections that contain its authoritative rationale
+    and nuance.
+4.  Counter-proofs explicitly constrain required architectural outcomes
+    rather than prescribing implementation techniques left open by the
+    canonical.
+5.  Executor self-challenge and independent reviewer
+    counter-verification are separated. Executor states are `PASS`,
+    justified `N/A`, and justified `UNRESOLVED`; reviewer states are
+    `PASS`, justified `N/A`, and `FAIL` with a finding.
+6.  `PASS` is intentionally lightweight. A note is optional only when
+    materially useful. `N/A`, `UNRESOLVED`, and `FAIL` carry the
+    additional information required by their semantics.
+7.  The canonical delegates report formatting, provenance/evidence
+    recording, FULL/PARTIAL coverage, immutable report history, work
+    identity, and corrective-cycle mechanics to the sibling
+    `COUNTER-PROOF-REPORT.md`.
+8.  Existing Architecture Fitness Tests remain deeper architectural
+    reference material; the new control surface indexes and
+    operationalizes them rather than replacing them.
+
+No capability, protocol composition, requirement, guarantee, assumption,
+dependency choice, compatibility constraint, verification semantic,
+accepted Primitives invariant, deliberately open implementation
+decision, rejected approach, fitness test, handoff constraint, or
+domain-boundary rule from v1.4 is removed by this revision.
+
+At the v1.5 checkpoint, per the canonical replacement policy, **v1.5 superseded v1.4 as the canonical source of truth for the PayCrypto.Me Primitives domain**.
+
+## 42.4 v1.6 revision record
+
+This revision supersedes v1.5 and is the **terminology and PIP integration revision**. It preserves the accepted Primitives architecture while removing an implicit dependency on project-history knowledge at document entry.
+
+Principal changes:
+
+1. A compact **Canonical Terminology** section is positioned before the execution-time Control Surface so project-specific terminology is known before it is used operationally.
+2. Terminology is intentionally restricted to PayCrypto.Me-specific, locally coined, or locally specialized terms; the canonical no longer maintains a broad glossary of standard software/cryptography/protocol vocabulary.
+3. **PIP — PayCrypto.Me Improvement Proposal** replaces the former provisional work-identity acronym and is treated as an existing project-wide mechanism governed by the PayCrypto.Me PIP Specification.
+4. **CP — Counter-Proof** is formalized as canonical shorthand and remains Primitives-specific unless another domain independently adopts an equivalent mechanism.
+5. The Counter-Proof Control Surface moves from §0A to §0B so terminology is available before execution semantics.
+6. No Primitives capability, protocol composition, requirement, guarantee, assumption, dependency choice, compatibility constraint, verification semantic, accepted invariant, deliberately open implementation decision, rejected approach, fitness test, handoff constraint, or domain-boundary rule is removed by this revision.
+
+Per the canonical replacement policy, **v1.6 supersedes v1.5 and is the current source of truth for the PayCrypto.Me Primitives domain**.
