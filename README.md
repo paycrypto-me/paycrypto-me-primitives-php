@@ -167,7 +167,7 @@ Missing suitable providers require further research or explicit scope reconsider
 ## PayCrypto.Me Public Architecture
 
 Before reading or changing this repository's domain architecture, start with
-[PayCrypto.Me Public Architecture](./docs/architecture/PUBLIC-ARCHITECTURE.md).
+[PayCrypto.Me Public Architecture](docs/canonicals/public-architecture/paycrypto-public-architecture-canonical-v1.1.md).
 It is the shared entry point and authority map: it establishes the public
 architecture's scope, the relationship between its domains, and the context in
 which Primitives operates.
