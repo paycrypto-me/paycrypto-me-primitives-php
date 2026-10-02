@@ -1,492 +1,349 @@
 # First Capability Execution Plan — Public Address Derivation
 
-**Status: IN PROGRESS — research and implementation selection pending.**
+**Checkpoint: 2026-10-02. Status: first implementation phase; preliminary evidence
+exists, production contracts and providers remain open.**
 
-**Consolidation checkpoint: 2026-09-28.** Recommendations below are proposals for
-joint investigation, not selected production dependencies. The user will add
-independent candidates before comparative discussion and selection.
+The [provider refresh](research/public-address-provider-research.md), tracked by
+[PIP-0002](pips/PIP-0002/PIP-0002.md), adds pinned candidates and bounded executable
+probes. Full provider qualification and joint selection remain pending.
 
-This is a working execution plan, not canonical architecture or a frozen API.
-The scope and responsibility boundaries below are established. Library choices,
-concrete objects and remaining contract decisions must be resolved through the
-research gates before production implementation. Saving this plan does not
-claim that those decisions have already been made.
+This plan turns the current architecture into executable work for the first
+Primitives capability. It is not a canonical, a dependency selection, or a frozen
+PHP API. The documentation rewrite is tracked by
+[PIP-0001](pips/PIP-0001/PIP-0001.md); that PIP does not implement the capability.
+Create a separate implementation PIP before advancing material capability work.
 
-## 1. Objective, scope and established decisions
+## 1. Authority and reading path
 
-Deliver a locally executable, public-key-only Primitives capability that derives
-Bitcoin receiving addresses from public extended keys and a relative public path.
-Support P2PKH, P2SH-P2WPKH and P2WPKH using validated mainnet/testnet definitions
-and an explicit address policy.
+Start at the [repository README](../README.md), then use these authorities:
 
-### Scope by flow
+| Reference | Responsibility in this plan |
+|---|---|
+| [Public Architecture v1.1](canonicals/public-architecture/paycrypto-public-architecture-canonical-v1.1.md) | Public scope, wallet-read-only boundary, domain relationships and independent public consumption of Primitives. |
+| [Primitives canonical v1.6](canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md) | Domain architecture, accepted and open decisions, capability composition, verification semantics and CP-01–CP-12. |
+| [PIP Specification v0.1](specifications/PIP-SPECIFICATION.md) | Identity and durable proposal record for material work. |
+| [Counter-Proof Report Protocol v1.1](protocols/primitives/COUNTER-PROOF-REPORT.md) | Executor and independent-review reports, exact artifact references, coverage and immutable corrective history. |
+| [Repository instructions](../AGENTS.md) | English documentation and the explicit prohibition on local cryptographic algorithms and standardized encoders/decoders. |
 
-**This plan delivers the public derivation capability only. It is not a plan
-for every payment or receiving flow that may eventually use Primitives.**
+For initial orientation, read Primitives §§0–0B, 2–15 and 31–34. During execution,
+use §0B as the control surface and follow each applicable CP's Deep References
+when a decision is uncertain. This plan supplies work and evidence gates; it does
+not redefine the CPs or require repeated full-canonical reading for every edit.
 
-Terms such as *fixed address*, *derived address* and *hosted payment* describe
-different use cases, not an established set of Primitives flow classes. The
-current Primitives canonical grounds this slice in public extended-key-to-address
-derivation. Mentioning other flows below marks the scope boundary; it does not
-introduce those concepts into Primitives contracts or define another domain's
-architecture.
+### Reconciliation with the current baseline
 
-| Flow / use case | Coverage in this plan | Boundary |
-|---|---|---|
-| Derived address | **Included: public protocol capability only.** Import a public extended key, derive along an explicit non-hardened relative path, and construct a Bitcoin address for an explicit policy and network. | Does not choose, allocate, reserve or persist an index; discover address usage; assign addresses to payments; or guarantee uniqueness across requests. |
-| Fixed address | **Not delivered as a separate capability or flow.** | Accepting an already supplied address does not require public-key derivation. General address parsing, validation or normalization would need a separately admitted requirement. Reusable codecs and verification of generated outputs do not establish a fixed-address API. |
-| Hosted payment | **Outside this plan.** | No hosted checkout, remote payment session, provider integration, HTTP API, redirect, webhook or payment lifecycle is introduced. If such a use case later needs a low-level operation, admit that operation independently without teaching Primitives about hosted payments. |
+The previous plan cited retired paths and claimed a dated amendment of v1.4
+settled codec ownership, two-provider qualification and standalone delivery.
+That claim must not be carried forward as authority over v1.6.
 
-The input/output boundary for this delivery is:
+Three distinctions matter for execution:
+
+- **Delegation:** v1.6 §§13.3 and 32 retain open codec-ownership wording, and
+  §34 step 2 mentions investigating Base58 implementation techniques. Apply
+  §§10A and 31.1 together with the explicit repository instruction: research
+  runtime/library implementations, including GMP-free options; do not implement
+  an algorithm or standardized codec locally. Provider choice remains open.
+  This plan discloses the residual wording; it does not amend the canonical.
+- **BIP32 composition:** §§10A and 12 explicitly allow Primitives-owned CKDpub
+  semantics composed from delegated HMAC-SHA512 and public-key tweak operations.
+  A complete external BIP32 provider is an option to qualify, not a prerequisite.
+  The old blanket wording against handwritten CKDpub must not prohibit owned
+  protocol orchestration. Cryptographic mathematics and codec machinery remain
+  delegated, and reference internals are not an implementation blueprint.
+- **Delivery boundary:** §34's contextual vertical-slice example mentions higher
+  domains. This repository delivers and tests the Primitives portion locally,
+  consistent with Public Architecture §§10–11 and Primitives §§1 and 24–27.
+  Core/SDK/Consumer implementation is not an exit gate for this library slice.
+
+The two-library qualification rule retained in §5 is a **plan-level verification
+commitment**, not a requirement stated by canonical CP-07. It must not be silently
+promoted into architecture or silently dropped because qualification is difficult.
+
+## 2. Delivery contract and scope
+
+Deliver a standalone, public-key-only operation:
 
 ```text
-Public extended key + relative public path + network definition + address policy
-    → validated public derivation and address construction
-    → public address result or typed failure
+public extended key + explicit relative public path
+                    + validated network definition + explicit address policy
+    → public-key admission and non-hardened derivation
+    → Bitcoin address construction
+    → public address result or defined failure
 ```
 
-Input validation, public-key validity, key decoding, derivation, hashing and
-address encoding are supporting parts of this capability. The candidate worksheet
-below exists to supply this scope; it is not a catalog of additional promised
-flows. A standalone public-key-to-address API is also not automatically promised
-merely because address construction is needed internally.
+The slice includes P2PKH, P2SH-P2WPKH and P2WPKH, with Bitcoin mainnet and testnet
+definitions. The three constructions come from the canonical baseline; both
+network definitions and explicit request inputs are retained delivery choices
+from the earlier plan. P2SH-P2WPKH is not optional. Start with one complete branch
+as an internal milestone, then reuse its common capabilities for the other two.
 
-Future fixed-address-related or other low-level capabilities may reuse these
-components after their requirements are admitted. No such expansion is required
-to complete this plan, and this exclusion is not a permanent ban on useful
-protocol capabilities.
+The operation does not allocate, reserve or persist indices, discover usage,
+assign addresses to payments, or guarantee uniqueness between requests. It does
+not inherit an account-depth restriction, a fixed `0/index` path, prefix-derived
+policy defaults or network rewriting from the reference application.
 
-### Established decisions
+Private keys, extended private keys, seeds, mnemonics, hardened/private derivation,
+key generation, signing and transactions remain outside scope. Fixed-address
+validation and hosted-payment flows are not delivered. Neither are additional
+chains, Lightning, Taproot, Bech32m, address discovery, or general public-key
+export. Internal codec or validation operations do not automatically become
+separate public APIs.
 
-The choice of public extended-key derivation follows the canonical's initial
-concrete requirement and recommended vertical slice (sections 5 and 34). It is
-not a claim that this is the easiest flow. Its implementation must demonstrate
-the canonical composition and replacement properties, not merely produce the
-expected Bitcoin address strings.
+PHP 8.1 is the consumer baseline in [composer.json](../composer.json); the
+repository checks PHP 8.1 and 8.3. GMP is permitted as an explicitly documented
+provider requirement, not imposed as a domain capability. Runtime requirements,
+including integer-width assumptions, must be established by qualification.
 
-- Primitives has no knowledge of higher layers. External repositories provide
-  requirement or reference evidence only; they do not supply its architecture,
-  implementation blueprint or behavioral-preservation contract.
-- OWN covers capability contracts, protocol semantics, invariants, semantic
-  values, definitions, pertinent operations and composition.
-- Cryptographic algorithms, elliptic-curve mathematics and standardized
-  encoders/decoders are delegated to evaluated libraries or runtime facilities.
-  Apparent simplicity does not authorize local implementation.
-- No provider-specific points, scalars, buffers, GMP objects or other library
-  types cross public capability boundaries.
-- Network parameter differences are data. Do not introduce behavioral classes
-  merely for network or protocol identity.
-- Public derivation paths are explicit inputs. Do not inherit a fixed `0/index`
-  path, an account-depth restriction, prefix-based defaults, policy overrides or
-  network rewriting from a reference implementation.
-- PHP 8.1 is the supported baseline; PHP 8.3 is also verified. GMP is permitted
-  for the initial ECC implementation, subject to explicit runtime requirements.
-- Select implementations explicitly; do not add silent runtime backend fallback.
-- Documentation, decision records, diagram labels and review artifacts use English.
-- Final diagrams follow the research and contract decisions. Existing temporary
-  diagrams are drafts and are not approved for canonical use.
+### Architecture translated into delivery obligations
 
-Out of scope: fixed-address flow delivery, hosted-payment flow delivery,
-upper-layer integration, index allocation or reservation, order or
-payment state, persistence, private material, key generation, signing, transaction
-handling, Lightning, additional chains, Taproot and general address discovery.
-Public-key export or general address-validation APIs do not enter scope merely
-because a selected dependency offers them.
-
-Completion means an implemented and reproducibly verified capability with a
-documented contract, selected implementations, supported-runtime checks and a
-reviewable evidence package. Readiness for independent review and completion of
-that external review are separate milestones; neither may be reported as the other.
-
-### Mandatory capability reuse and adapter boundaries
-
-Canonical anchors: sections 7–9 (reuse and definitions), 11 (minimal ECC
-contract), 18 (actual divergence), 25 (backend replacement) and 35 (fitness tests).
-
-**Share identical behavior until the actual divergence point.** The unit of
-reuse is a semantic capability, not a coin class or a vendor package. Shared
-public derivation, key operations, hashing and codecs must not be duplicated
-under Bitcoin-specific and Bitcoin-Cash-specific implementations. Changes to
-representable parameters require definitions, not new behavioral classes.
-
-Use the canonical's compatible Bitcoin / Bitcoin Cash derivation example as a
-design fitness check, not as an additional delivery commitment:
-
-| Part of a future compatible flow | Required architectural treatment |
+| Architectural anchor | Obligation for this slice |
 |---|---|
-| Same admitted BIP32 public derivation and secp256k1 operations | Reuse the existing semantic capabilities and their selected adapters. Do not clone the derivation stack for another coin name. |
-| Same compressed-key hashing behavior | Reuse the existing hashing composition and delegated implementations. |
-| Different network/version/prefix parameters | Supply validated definitions where existing semantics support the variation. |
-| Different final address semantics or encoding, such as CashAddr | Introduce only the genuinely divergent composition/capability and delegate its codec after a concrete requirement is admitted. CashAddr must not be treated as a Bech32 parameter variation. |
+| §§7–9, 18, 28A; CP-02–CP-04 | Share derivation, key operations, hashing and compatible codecs; network variation remains validated data. Specialize at actual address-semantic divergence. |
+| §§10–13; CP-05–CP-06 | Own contracts, invariants, definitions and composition. Delegate algorithms, curve mathematics and codecs. No vendor point, scalar, buffer, GMP object or exception crosses a capability boundary. |
+| §§24–27; CP-07, CP-11 | Select production providers deliberately, verify replacement and disclose reference independence. Never switch backends silently at runtime. |
+| §§1, 20; CP-08 | Offer a locally usable operation without higher-domain objects or mandatory remote infrastructure. |
+| §§12, 14, 33; CP-10 | Keep BIP32, SLIP-132 interpretation and the three address constructions semantically distinct. Resolve invalid-child behavior from evidence. |
+| §§15–19, 32; CP-09, CP-12 | Preserve public-only scope and deliberate openness. Fitness examples do not become promised capabilities. |
 
-This comparison assumes compatible key/path semantics; it does not assert that
-all Bitcoin and Bitcoin Cash wallet policies are interchangeable. Bitcoin Cash
-and CashAddr implementation remain outside this slice. The design review must
-identify which existing components would be reused and the exact point where
-new behavior would begin, without implementing speculative support.
+## 3. Starting evidence and candidate research
 
-### Definitions and public operation
+The repository currently contains development tooling and a setup test; `src/`
+has no production capability implementation. Composer selects no production
+crypto or codec package. No executable provider qualification or independent
+review of a Primitives implementation is established by this documentation.
 
-Definitions are declarative data validated once into immutable semantic views
-(canonical §9). Request inputs provide the public key, explicit relative path,
-selected definition and explicit address policy. Provider wiring is separate.
-Neither definitions nor requests name vendor classes or executable steps.
+| Existing artifact | Use and limits |
+|---|---|
+| [Delegation inventory](research/delegation-inventory.md) | D01–D11 identify required delegated operations; composite-provider and internal-entity considerations identify integration questions. Rows do not mandate separate packages or interfaces. |
+| [Historical candidate worksheet](research/public-address-candidate-worksheet.md) | Preserves the 2026-09-28 proposals, D01–D11/C01–C07 mapping and space for user candidates. Leads require version-level research; they are not current compatibility or maintenance findings. |
+| [Current provider research](research/public-address-provider-research.md) | Updated recommendations, version/requirement/advisory evidence, public API/codec probes and the active user-candidate column. Explicitly distinguishes observations from completed qualification. |
+| [BitWasp investigation](reviews/bitwasp-public-derivation/README.md) | Version-specific source map, harness, observations and provenance. Reference behavior is evidence, not a compatibility obligation. |
+| [Composition/API proposal](research/public-address-composition-proposal.md) | Prospective direct compositions and a typed-request invocable. Neither API shape nor example class names are accepted contracts. Bitcoin Cash remains a fitness example. |
 
-**Proposal:** one typed-request invocable for the admitted public-address
-operation, with explicit policy-to-composition wiring. Lower capabilities receive
-only their own inputs, never the whole request or knowledge of their callers.
-Qualify this against direct composition before freezing the API. There is no
-universal crypto dispatcher, coin hierarchy or dynamic pipeline interpreter.
+The BitWasp investigation records 17 public-key round trips, six official public
+non-hardened derivation edges and 30 address regressions. It also records accepted
+invalid root metadata, ignored trailing payload data, rejected zero tweak,
+invalid-child progression questions and an infinity result under controlled
+injection. Turn these into qualification cases; do not inherit the discrepancies.
+The run used PHP 8.3.35 and does not establish the supported-runtime matrix.
+BitWasp backed by Paragonie is not an independent ECC oracle for another
+Paragonie-backed adapter.
 
-The [composition/API proposal](research/public-address-composition-proposal.md)
-contains the Bitcoin/Bitcoin Cash declarations, data-driven definition examples,
-parameter provenance rules and pattern vocabulary. These examples are not APIs
-already delivered. Adding compatible data requires validation and fixtures;
-adding unsupported behavior requires a separately qualified capability.
+The documentation rewrite preserved existing research without renewing its
+external claims. The subsequent PIP-0002 research reran the BitWasp harness with
+identical output and added bounded provider probes; their limits are recorded in
+the current worksheet. A future selection record must identify exact releases/commits,
+license, runtime/extensions, dependency footprint, maintenance/security evidence,
+actual executed dependency paths, unsupported behavior and reproducible results.
 
-### Provider adapters and replacement qualification
+### Research priorities
 
-**Adapters implement our capability contracts, not a mirror of vendor APIs.**
-Sketch the minimum semantic contract from the requirement before evaluating a
-provider's method names. For example, the ECC boundary expresses a validated
-compressed public key plus a public scalar tweak producing a compressed public
-key or a defined failure. It does not expose generic point addition,
-multiplication, curve factories or the shape of a provider's object model.
+1. Define the minimum ECC and BIP32 semantic contracts; evaluate the canonical's
+   initial `paragonie/ecc` candidate through an adapter. Compare materially
+   different APIs and identify a mathematically independent reference.
+2. Resolve BIP32 invalid-child semantics and strict extended-public-key admission.
+   Compare owned protocol composition with composite-provider integration;
+   preserve the canonical capability boundaries in either case.
+3. Qualify Base58/Base58Check for extended-key and address payloads, and
+   Bech32/SegWit v0 for P2WPKH. Investigate Base58/GMP independence without
+   assuming that ECC runtime requirements also belong to codecs.
+4. Qualify PHP runtime hashing and fixed-width conversion facilities against the
+   exact inputs, output formats and supported environments.
 
-- A compliant adapter may coordinate several vendor calls, validate preconditions
-  and postconditions, convert representations and normalize failures to satisfy
-  one semantic operation. Forwarding a call is acceptable only when it actually
-  satisfies the independently defined contract; one-to-one method mapping is not
-  the design rule.
-- Entities, capability interfaces, protocol compositions and definitions must
-  remain independent of vendor classes, exception types, factory patterns and
-  implicit global/default configuration. Vendor-specific mechanics belong inside
-  the implementation adapter and its explicit wiring.
-- One library may implement several capabilities without merging their semantic
-  boundaries. Conversely, replacing one capability's provider must not require
-  replacing unrelated capabilities or changing their consumers.
-- Replacement changes the adapter, explicit construction/wiring and dependency
-  configuration. It must not change domain entities, capability contracts or
-  protocol compositions solely because the new library exposes different APIs.
-- Validate a replacement against the same conformance suite, then switch it
-  explicitly. Replaceability is not automatic runtime fallback or an untested
-  promise that every library can satisfy the contract.
+Candidate collection and spikes can advance without waiting for an empty user
+worksheet cell. Preserve the earlier joint-selection workflow: compare available
+research, discuss concrete qualification evidence and record the selected
+versions and rejected alternatives before production wiring is finalized.
+No recommendation or successful reference run constitutes selection.
 
-For every library-backed capability boundary, require two suitable, distinct
-libraries to be exercised through separate adapters before accepting the boundary.
-Prefer candidates with materially different usage APIs: their differences test
-whether our contract expresses the capability or merely reproduces one vendor's
-API. ECC is the first concrete case; the research candidates already listed in
-section 3 are investigation options, not a selected pair.
+## 4. Minimal contracts and decisions to close
 
-Reuse the semantic contract, entities, conformance corpus and protocol
-composition. Each adapter accommodates its own library's API. Do not require the
-same adapter implementation to support unrelated libraries, or introduce vendor
-flags into a shared adapter to manufacture reuse. Share adapter implementation
-details only where independently justified by identical semantics.
+Sketch contracts from the requirement before matching them to vendor APIs.
+Refine them through spikes; freeze the slice's semantic guarantees before
+production delivery. Exact PHP names, namespaces, physical layout and calling
+syntax remain open until justified. Do not postpone all contract design until a
+library has already determined its shape.
 
-The qualification procedure is:
-
-1. Define required inputs, results, invariants and failures from the capability.
-2. Implement two real provider adapters and run the same success, boundary and
-   failure corpus against both, recording exact dependency/runtime versions.
-3. Run the consuming protocol composition with each adapter, changing only
-   dependency wiring. Changes to semantic entities, contracts or compositions
-   solely to accommodate a vendor API fail this architectural check.
-4. Record API differences, adapter translations, results and remaining gaps in
-   the review evidence. If two suitable libraries cannot be qualified, leave
-   this gate explicitly pending and return to research; mocks and a proposed
-   replacement mapping do not satisfy it.
-
-Apply this requirement per capability boundary, not per package or internal
-algorithm: a library may serve several boundaries, each with its own evidence.
-Direct runtime facilities still require conformance and independent verification;
-do not add artificial library wrappers merely to count them as two providers.
-Keep the alternative adapters in verification tooling; only one deliberate
-production implementation is required, with no automatic runtime fallback.
-Different library APIs demonstrate an architectural challenge, not cryptographic
-independence: two libraries using the same underlying implementation cannot serve
-as independent cryptographic references for that implementation.
-
-The purpose is strong semantic isolation with the smallest justified contracts.
-Do not add a universal crypto manager, generic curve API, coin hierarchy or
-plugin framework merely to make the adapters appear sophisticated.
-
-## 2. Current evidence and authority
-
-Read [Public Architecture](architecture/PUBLIC-ARCHITECTURE.md) and the
-[Primitives canonical v1.4](architecture/paycrypto-primitives-canonical-architecture-reference-v1.4.md)
-as the architectural baseline. This plan does not define neighboring domains.
-
-The [delegation inventory](research/delegation-inventory.md) identifies D01–D11,
-provider internals, composite-provider research, initial leads and evaluation
-criteria. The [BitWasp reference investigation](reviews/bitwasp-public-derivation/README.md)
-provides a source-path map, reproducible observations, provenance and limitations.
-Its implementation is not automatically a production candidate that passes our
-requirements, and its address fixtures are regression observations rather than
-normative authority.
-
-Already established:
-
-- Development tooling exists, but no production crypto or codec package is selected.
-- The delegation inventory and initial reference investigation are recorded.
-- The reference investigation found parsing and invalid-child discrepancies to
-  include in candidate qualification.
-- BitWasp using Paragonie is not an independent ECC oracle for another adapter
-  using the same Paragonie backend.
-
-Completed work is preserved in WIP commit `61c2e48`: the delegation instructions,
-initial plan, inventory and reference investigation. That investigation recorded
-17 successful public-key round trips, six matching official public derivation
-edges and 30 matching address regressions. It also recorded two accepted invalid
-public-key vectors, ignored trailing data, zero-tweak rejection and an infinity
-result under controlled fault injection. These observations qualify the
-reference's limitations; they do not validate a Primitives implementation.
-
-The review artifacts include a reproducible harness, results, 463 local source
-file fingerprints and a comparison of the installed BitWasp `src` tree with its
-locked upstream commit. Full comparative candidate qualification, production
-implementation and external independent review have not been performed.
-
-The canonical's dated 2026-09-28 reconciliation closes the earlier codec-ownership
-conflict, records the two-provider architectural check and makes the first slice
-standalone. It preserves open provider and PHP API decisions. This is a documented
-amendment of the existing v1.4 file, identifiable by source revision, not a claim
-that implementation or external review has occurred.
-
-## 3. Joint candidate research worksheet
-
-This is the central editable worksheet for candidate discussion. D01–D11 match
-the [delegation inventory](research/delegation-inventory.md); that document retains
-the detailed requirements and verification criteria. C01–C07 below identify its
-composite-provider and internal-entity considerations, not new public capabilities.
-
-**Assistant recommendation** means the best first investigation target among the
-options examined so far, given PHP 8.1, permitted GMP and our domain boundaries.
-It is an engineering recommendation, not evidence of superiority, compatibility
-or audit approval. Exact supported releases remain to be qualified. Where the
-evidence does not support a production front-runner, the table says so explicitly.
-
-**User candidates** cells are intentionally empty for the user's own research.
-Add package/runtime names and links there; versions and notes are welcome. One
-provider may cover multiple rows, and a runtime facility can be preferable to a
-new Composer dependency. No row mandates a separate class, interface or package.
-
-### Algorithms, public-key operations and codecs
-
-| ID | Delegated item / required use | Assistant recommendation | Reason and qualification still needed | User candidates |
-|---|---|---|---|---|
-| D01 | SHA-256: HASH160 and checksum hashing | PHP Hash runtime: [`hash('sha256', ..., true)`][php-hash] | Direct runtime implementation with binary output; verify known-answer vectors and availability on both supported runtimes. | |
-| D02 | RIPEMD-160: public-key and redeem-script hashing | PHP Hash runtime: [`hash('ripemd160', ..., true)`][php-hash] | Same runtime boundary as D01; confirm algorithm availability, 20-byte output and vectors. | |
-| D03 | HMAC-SHA512: public derivation | PHP Hash runtime: [`hash_hmac('sha512', ..., ..., true)`][php-hmac] | Avoid a separate HMAC dependency; verify key/data order, long-key vectors and 64-byte output. | |
-| D04 | secp256k1 public-key parsing, validation and compressed serialization | [`paragonie/ecc`][paragonie] first; [`simplito/elliptic-php`][elliptic] as comparison candidate | Fits the initial canonical candidate and permitted GMP deployment. Qualify compressed-key validation and contain all point types. Research [`libsecp256k1`][secp] as the independent ECC reference and possible future backend; no PHP binding is selected. | |
-| D05 | secp256k1 public-key scalar tweak addition | [`paragonie/ecc`][paragonie] through a minimal adapter; compare with [`libsecp256k1`][secp] | Reuse D04's provider rather than duplicate ECC stacks. Explicitly test zero tweak, scalar bounds and infinity; a passing BitWasp run using Paragonie is not independent ECC evidence. | |
-| D06 | Base58 encode/decode with the Bitcoin alphabet | [`tuupola/base58`][tuupola] first | Focused codec with documented PHP/GMP implementations. Explicitly select the Bitcoin alphabet and a backend; do not inherit its environment-dependent default selection. Verify leading zeros and malformed inputs. | |
-| D07 | Base58Check for extended keys and address payloads | [`tuupola/base58`][tuupola] as a conditional first trial; compare the inspected [`BitWasp Base58`][bitwasp-base58] implementation | Tuupola documents checksum support, but full four-byte extended-key-version handling is not established here. BitWasp provides the broader payload reference, with a larger dependency graph. Reject a candidate that cannot cover the required payloads; do not fill gaps with a local codec. | |
-| D08 | Bech32 encoding/decoding machinery | [`bitwasp/bech32`][bech32] first | Dedicated package rather than the full Bitcoin library. Qualify official valid/invalid vectors, case/length rules, checksum and padding behavior, release compatibility and maintenance. | |
-| D09 | SegWit v0 address codec for P2WPKH | [`bitwasp/bech32`][bech32] `encodeSegwit` / `decodeSegwit` | Reuse D08's provider. Keep the admitted policy at witness v0 with a 20-byte program; verify HRP behavior and negative cases. Codec capabilities beyond this do not expand our API. | |
-| D10 | Structural decoding of extended public keys | Investigate [`BitWasp RawExtendedKeySerializer`][bitwasp-raw] as a scoped parsing candidate; no qualified production choice yet | Existing structural machinery is preferable to writing a codec. Assess dependency cost and strict wrapper invariants: exact length, public-only admission, root metadata and version consistency. The inspected high-level parser is not acceptable unchanged. | |
-| D11 | Fixed-width binary integer and byte conversion | PHP [`pack()`][php-pack] / [`unpack()`][php-unpack] first; `bitwasp/buffertools` only if a concrete gap remains | Runtime delegation avoids a generic buffer dependency. Verify endianness, unsigned ranges and integer-width assumptions. Domain field definitions remain ours; standardized conversion machinery does not. | |
-
-### Composite operations and provider-internal entities
-
-These rows do not reclassify domain-owned composition as an external entity.
-They identify where delegated implementations are needed underneath it.
-
-| ID | Item / responsibility | Assistant recommendation | Reason and qualification still needed | User candidates |
-|---|---|---|---|---|
-| C01 | BIP32 public derivation provider; protocol contract remains owned | No production front-runner established. Keep [`bitwasp/bitcoin`][bitwasp] as a reference and compare additional providers before choosing the integration. | The inspected version's zero-tweak/infinity behavior prevents recommending it unchanged. Do not substitute a handwritten CKDpub implementation for the missing selection. | |
-| C02 | HASH160 operation | Compose the delegated PHP implementations recommended for D01 and D02 | This is owned operation composition, not a new hash implementation or a reason for another package. Verify composition order and expected outputs. | |
-| C03 | Double-SHA256/checksum support | Prefer the selected D07 provider for the complete Base58Check operation; reuse D01 where an admitted operation needs hashing | Keep checksum and encoding algorithms delegated. Do not infer permission to implement a local Base58Check codec from the availability of `hash()`. | |
-| C04 | Big integers, field elements and modular arithmetic | Use the chosen ECC provider's internal machinery; GMP is permitted | Do not select a domain-wide big-integer API separately. Assess transitive dependencies and prohibit external math objects in capability signatures. | |
-| C05 | Points, generators, curves and infinity representations | Keep these inside the D04/D05 provider and adapter | They are backend mechanisms, not domain entities. Map invalid/infinity outcomes to our semantic contract. | |
-| C06 | Buffers, parsers and serializers | Prefer runtime byte operations and the selected codec's internal types; assess `bitwasp/buffertools` only if justified | Avoid importing a generic buffer abstraction into public contracts. Qualify bounds checking and runtime diagnostics. | |
-| C07 | Script serialization helpers for the three address constructions | No separate script engine recommended. Evaluate [`BitWasp script helpers`][bitwasp-script] only if delegated serialization is needed beyond the chosen provider surface. | Bitcoin address/script semantics remain owned. Reject an unrelated interpreter, transaction or signing dependency unless its footprint is explicitly justified; do not reproduce a standardized serializer locally. | |
-
-### Recommendation basis and limitations
-
-Primary documentation and available source were checked for this worksheet on
-2026-09-28. PHP documents the hashing and binary-conversion facilities above.
-Paragonie's current development manifest declares PHP 8 support and GMP; this
-does not qualify a particular release. Simplito's manifest also requires GMP,
-so it is not proposed as a GMP-free alternative. Tuupola documents multiple
-backends and automatic selection; explicit selection is a qualification gate.
-The inspected Bech32 package exposes both generic and SegWit codec functions.
-The BitWasp concerns come from our preserved, version-specific investigation.
-
-Library documentation, manifests and a focused inspection are preliminary
-evidence. This checkpoint adds no new executable qualification results and makes
-no claim that every candidate's maintenance, security history or PHP matrix has
-already been assessed. Source links to moving branches must be replaced by exact
-release/commit references in the eventual selection records.
-
-### Joint research and selection workflow
-
-1. The user fills the empty column with independently researched candidates.
-2. Combine both lists by item, retaining why each candidate was proposed. Expand
-   the search where neither list provides a credible implementation.
-3. Evaluate the same contract, runtime constraints, license, maintenance evidence,
-   dependency footprint, vectors, failure cases and reference independence for
-   every candidate. Record rejected options and reasons.
-4. Discuss the evidence together and explicitly record the selected provider and
-   exact version for each item. A recommendation or an empty user cell is not a
-   selection or approval; shared providers can cover multiple items.
-5. Freeze the resulting contracts and update the plan, then produce concrete
-   diagrams. Only then implement the production capability and prepare the
-   independent-review snapshot.
-
-[php-hash]: https://www.php.net/manual/en/function.hash.php
-[php-hmac]: https://www.php.net/manual/en/function.hash-hmac.php
-[php-pack]: https://www.php.net/manual/en/function.pack.php
-[php-unpack]: https://www.php.net/manual/en/function.unpack.php
-[paragonie]: https://github.com/paragonie/phpecc
-[elliptic]: https://github.com/simplito/elliptic-php
-[secp]: https://github.com/bitcoin-core/secp256k1
-[tuupola]: https://github.com/tuupola/base58
-[bech32]: https://github.com/Bit-Wasp/bech32
-[bitwasp]: https://github.com/Bit-Wasp/bitcoin-php
-[bitwasp-base58]: https://github.com/Bit-Wasp/bitcoin-php/blob/527b1ee7d2cd958b5ce011c7918801ffbfb53f97/src/Base58.php
-[bitwasp-raw]: https://github.com/Bit-Wasp/bitcoin-php/blob/527b1ee7d2cd958b5ce011c7918801ffbfb53f97/src/Serializer/Key/HierarchicalKey/RawExtendedKeySerializer.php
-[bitwasp-script]: https://github.com/Bit-Wasp/bitcoin-php/blob/527b1ee7d2cd958b5ce011c7918801ffbfb53f97/src/Script/Factory/OutputScriptFactory.php
-
-## 4. Execution sequence and exit gates
-
-| Phase | Work and deliverables | Exit gate | Status |
-|---|---|---|---|
-| 1. Feasibility research | Merge assistant and user candidates from section 3; compare versioned candidates against D01–D11 and the related C01–C07 considerations. Record scope, license, maintenance/security evidence, runtime requirements, transitive dependencies and known gaps. | Every required item has a documented candidate disposition; unsupported requirements are explicit. No algorithm or codec implementation is invented to close a gap. | In progress: inventory, initial evidence and assistant recommendations available; user research and comparative qualification pending. |
-| 2. Qualification spikes and verification corpus | Exercise section 5's contract responsibilities and definition validation. Qualify two distinct libraries through separate adapters for each library-backed boundary, starting with ECC; demonstrate their actual use by unchanged compositions. Run section 1's reuse check and establish normative vectors, negative cases, regression provenance, independent references and reproducible commands. | Required behavior, provider replacement and reuse boundaries are demonstrated; any missing second qualified provider leaves the boundary gate pending; discrepancies are resolved or the candidate is rejected; reference independence is explained. | Pending. |
-| 3. Select implementations and freeze contracts | Discuss both candidate lists and qualification evidence together; record explicit implementation selections and rejected alternatives. Finalize public inputs/results/errors, adapter boundaries, definitions and invalid-child behavior. Reconcile accepted documentary changes and then produce concrete diagrams with editable sources. | All decisions in section 5 are closed for this slice; contracts preserve the canonical boundaries and implementations pass the qualification gate. | Pending joint selection. |
-| 4. Implement the vertical capability | Add selected dependencies and runtime requirements; implement semantic values, invariant checks, adapters, validated network definitions and the three address compositions. Deliver a standalone usage example. | The complete public-key-to-address flow works through its own contract, with no external types or higher-layer concepts leaking through it. | Pending. |
-| 5. Verify and prepare independent review | Run the complete capability suite and existing CI checks on PHP 8.1/8.3. Assemble source, dependency, decision, vector and execution evidence for a frozen revision. | Reproduction succeeds; discrepancies and limitations are disclosed; review materials identify the exact implementation and evidence under review. | Pending. |
-| 6. Independent review and disposition | Supply the review package through the agreed process, record findings and responses, and rerun affected checks after changes. | The external review outcome is actually received and recorded; unresolved correctness findings are not presented as accepted behavior. | Pending external review. |
-
-Research and qualification may iterate. A failed candidate returns to research,
-not to a local reimplementation or an invisible fallback. Contract sketches can
-precede selection to test independence, but must not freeze objects simply to
-match a library API. Production implementation waits for the selection and
-contract gate.
-
-Implement one complete address branch first as an internal milestone, then reuse
-the same admitted capabilities for the remaining two. The delivery is incomplete
-until all three constructions and both network definitions pass their gates.
-
-No publication, external message or reviewer submission is performed merely by
-following the local research steps. Reviewer coordination and release execution
-are separate actions; this plan records their prerequisites rather than claiming
-they have been authorized or completed.
-
-## 5. Contract responsibilities and decisions to close
-
-The following responsibilities are required; their PHP names and physical package
-layout are not frozen. Each contract record must specify input guarantees,
-outputs, failure categories, limits, delegated operations and the evidence that
-establishes those guarantees. A contract is not defined by a successful example.
-
-| Boundary | Required contract and owner | Verification obligation |
+| Boundary | Responsibility to establish | Evidence needed before freezing |
 |---|---|---|
-| Definition loading | Validate supported profile schemas, exact parameter representations, required/unknown fields and compatible values; produce immutable semantic definitions. | Reject invalid definitions before use; adding compatible network data changes no behavior. Record definition/schema revision with fixtures. |
-| Public operation | Accept public extended-key material, explicit relative path, definition and policy; validate compatibility; return a public address result or specified failure. | Exercise all three policies on both networks. No inferred path/policy, network rewriting, index allocation or hidden fallback. |
-| Extended-key admission | Delegate structural decoding, then enforce public-only material, exact payload length, root metadata, version interpretation and key validity. Preserve metadata needed for compatibility checks. | Normative valid/invalid fixtures, trailing data and private/unknown versions; a typed value alone is not proof of validation. |
-| Public derivation | Enforce non-hardened relative paths and bounds through provider-independent semantics; delegate algorithm machinery. | Exact-index versus advancing behavior, effective path, invalid intermediate children, depth and exhaustion require explicit decisions and tests. |
-| ECC operation | Valid compressed key plus admitted scalar tweak gives a valid compressed key or specified failure; all math and parsing machinery delegated. | Zero tweak, range, invalid points and infinity; two real adapters and independent evidence for the mathematical property. |
-| Address construction | Reuse the derived compressed key and common hashing; each policy owns its address/script semantics and delegates codecs/serialization. | P2PKH hashes the key; P2WPKH uses the key hash as its witness program; P2SH-P2WPKH also hashes its redeem script. Do not collapse these into one interchangeable hash payload. |
-| Failure boundary | Distinguish malformed input, unsupported/incompatible semantics, derivation outcomes and provider/environment failure. | Vendor exceptions do not escape; no partial success or substitution. Freeze exception/result representation and stable error meanings before implementation. |
+| Public operation | Explicit key, relative path, network definition and policy; compatibility admission; public result or defined failure. | All three policies on both networks, unsupported combinations, and equivalence with direct composition. Decide serialized versus prevalidated key input and validation ownership. |
+| Definition loading | Validate declarative parameters into semantic views; behavior consumes those views rather than raw storage keys. | Required/unknown fields, exact byte representations, profile compatibility, parameter provenance and no mutation across calls. Physical format and loading API remain open. |
+| Extended-key admission | Compose delegated decoding with owned public-only admission, exact payload size, root metadata, version semantics and key validity. | Official valid/invalid public fixtures, trailing data, private/unknown versions and malformed compressed points. Keep SLIP-132 policy interpretation separate from generic BIP32. |
+| Public derivation | Own CKDpub semantics and metadata transitions; compose delegated HMAC and ECC or qualify an integration preserving those boundaries. | Specification-backed invalid-child behavior, public-index bounds, depth limits, zero tweak, intermediate invalid children and exhaustion. |
+| ECC tweak | Valid compressed public key plus admitted public scalar tweak yields a valid compressed public key or defined failure. | Zero, scalar at/above order, invalid points and infinity; delegated parsing/math/serialization; no generic curve API exposed. |
+| Address construction | Reuse derived key and hashing; own each policy's semantics and delegate standardized encoding. | P2PKH key hash, P2WPKH witness program, and P2SH-P2WPKH redeem-script hash are tested distinctly. They are not one interchangeable payload. |
+| Failure boundary | Distinguish malformed input, unsupported/incompatible intent, derivation outcomes and provider/environment failure. | Stable meanings, bounded parsing/path work, normalized vendor failures and no partial success or invisible fallback. Exact exception/result representation remains open. |
 
-Request and result design must resolve serialized versus validated key inputs,
-where validation occurs, and how requested/effective path and selected
-policy/definition remain identifiable when relevant. Routine results need not
-expose backend objects or a full audit trace. Keep wallet identifiers out of
-automatic diagnostics; review fixtures use public test data.
+Required decision records must settle:
 
-A complete BIP32 provider may use its own ECC/codec internally. Research must
-identify the **actual executed dependency path**: an unused injected adapter does
-not prove replaceability. Demonstrate qualified integration through our required
-boundaries, or explicitly reconcile a different provider boundary before
-selection. Do not keep decorative interfaces or claim coverage for bypassed
-adapters; do not fill a provider gap with handwritten CKDpub or codecs.
+- **Invalid-child API:** exact-index operation versus advancing orchestration,
+  effective-path reporting, non-terminal invalid children and exhausted ranges.
+  Verify normative behavior first; do not infer it from one library's retry or
+  exception behavior. Requested and effective paths must remain distinguishable
+  whenever the chosen contract allows them to differ.
+- **Version/network/policy compatibility:** supported public versions, BIP32
+  versus SLIP-132 meaning, supported combinations and explicit rejection rules.
+  No silent version rewriting or substitution of intent.
+- **Representation and limits:** validated public-key/extended-key values, tweak
+  representation, relative-path syntax and bounds, depth and integer limits,
+  result contents and error taxonomy. Use public fixtures and avoid automatic
+  diagnostics containing wallet identifiers.
+- **Construction API:** compare direct composition with the proposed typed-request
+  invocable. Definitions and requests must not contain vendor selection or
+  executable steps. Lower capabilities receive only their own semantic inputs.
+  Do not build a registry framework, universal dispatcher or graph interpreter
+  merely to support the initial operation.
+- **Provider integration:** selected versions and extensions, adapter obligations,
+  actual executed dependency paths, replacement candidates and independent
+  references. An unused injected adapter does not demonstrate a boundary.
 
-### Open decisions
+Each record identifies the requirement, governing reference, evidence, decision,
+alternatives, limitations and affected tests. An open decision is a research task,
+not permission to inherit a default from a dependency.
 
-| Open decision | Evidence needed to close it |
+## 5. Qualification and verification gates
+
+### Provider conformance and replacement
+
+Adapters implement semantic capabilities, not vendor API mirrors. They may
+coordinate vendor calls, convert representations, enforce pre/postconditions and
+normalize failures. Provider points, scalars, buffers and configuration stay
+inside the adapter and explicit construction wiring.
+
+Retain the earlier plan's requirement to exercise **two suitable distinct
+libraries through separate adapters for each library-backed capability boundary**.
+Use the same contract corpus and unchanged consuming compositions; change only
+adapter wiring and dependency configuration. Prefer different usage APIs to
+challenge accidental coupling. Keep alternative adapters in verification tooling;
+production deliberately selects one implementation per capability.
+
+This is an executable isolation check, not a requirement for two packages per
+internal algorithm or for automatic failover. One package may serve multiple
+boundaries. Runtime facilities require conformance and independent evidence, but
+do not need artificial wrappers to count as multiple libraries. Mocks can force
+rare outcomes; they do not satisfy provider replacement qualification.
+
+If a second suitable provider is unavailable, record the affected boundary and
+leave this plan's gate open. Research or explicitly reconsider the delivery
+commitment with supporting evidence; do not report an unexercised alternative as
+qualified. Different APIs alone do not establish cryptographic independence:
+record shared underlying implementations separately.
+
+### Evidence corpus
+
+| Evidence category | Required coverage |
 |---|---|
-| Production providers and exact supported versions | Candidate matrix and passing qualification results for the required operations; explicit runtime/extension and transitive dependency analysis. |
-| BIP32 implementation integration | Demonstrate the selected provider/composition boundary without porting algorithm internals, losing protocol control or adopting a dependency-shaped domain model. |
-| Public-key and extended-key representations | Minimum semantic data, validation guarantees and conversion boundaries; no provider-owned objects in public signatures. |
-| Path and invalid-child result contract | Decide exact-index versus advancing behavior, the treatment of non-terminal invalid children, effective-path reporting and exhaustion errors; verify against the specification and controlled tests. |
-| Version, network and explicit-policy compatibility | Document accepted public versions and valid combinations, including BIP32 versus SLIP-132 semantics; reject unsupported cases without silently changing intent. |
-| Definitions and construction API | Qualify the linked declarative-definition and typed-request invocable proposal against direct composition. Demonstrate profile-specific schema validation, parameter provenance, explicit policy compatibility, immutable semantic views and explicit implementation wiring across all three initial policies; no speculative registry framework. |
-| Error taxonomy and resource limits | Separate malformed input, unsupported operation, invalid-child outcomes and backend/runtime failure; bound parsing/path work and document depth and integer limits. |
-| Independent verification tools | Exact versions and provenance; shared-dependency analysis demonstrating independence for the property being checked. |
-| Concrete PHP APIs and diagrams | Final names, signatures and object relationships derived from the validated contracts, followed by editable diagrams and SVG exports. |
+| Normative vectors | Public portions of BIP32 and applicable hashing, compressed-key and address/codec vectors, with source revision and independently justified expected results. Do not bring private derivation into production to run a vector suite. |
+| Regression cases | Existing admitted address/derivation cases with provenance; exclude accidental application policy and known reference defects. |
+| Invalid inputs and boundaries | Payload length, root metadata, versions, SEC1 key validity, checksum/alphabet/leading zeros, incompatible intent, hardened requests, depth overflow and maximum public index. |
+| Controlled rare outcomes | Zero tweak, scalar at/above order, infinity, invalid intermediate children and exhaustion; document injection seams and distinguish forced outcomes from naturally observed cases. |
+| Differential verification | Independently implemented references appropriate to the property under test, exact versions and shared-dependency analysis. Investigate disagreements rather than voting on outputs. |
+| Adapter/environment behavior | Determinism, explicit missing-runtime failures, contained vendor types/errors, actual executed wiring and no automatic fallback. |
+| Definition and operation fitness | Data-only network variation, rejected invalid definitions, immutable semantic use, unsupported/missing composition failures and parity between the public operation and its direct compositions. |
 
-Each decision record must state the requirement, evidence, selected approach,
-alternatives, limitations and affected tests. Open entries are intentional work
-items, not permission for an implementer to silently guess the final behavior.
+Expected results must not be generated solely by the implementation being tested.
+Keep normative vectors, observed regressions and controlled experiments distinct.
 
-## 6. Acceptance and audit evidence
+### Reuse fitness
 
-Build a review manifest with stable requirement IDs linking each admitted
-requirement to its canonical section, contract, composition, definition/schema,
-provider revision, test/vector IDs, command and result artifact. Every required
-branch and failure must have evidence or an explicit open gap; a passing count
-alone is insufficient. Expected results must come from a justified source,
-not be generated by the same implementation under test. Keep these evidence
-categories distinct:
+Demonstrate shared behavior across the three address compositions and both network
+definitions. Use the canonical's compatible Bitcoin/Bitcoin Cash example as a
+bounded design check: identify reused BIP32/ECC/hash capabilities, parameter-only
+variation and the exact new terminal semantics a future CashAddr capability would
+require. Do not implement that future capability or treat CashAddr as a Bech32
+parameter change. Taproot and non-Bitcoin families remain canonical fitness
+questions, not implementation milestones.
 
-- **Normative vectors:** official public BIP32 and applicable hashing, key,
-  encoding and address vectors, with source/revision and expected outputs.
-- **Regression cases:** independently justified cases with provenance; no blanket
-  preservation of reference quirks or upstream application policies.
-- **Boundary and invalid-input tests:** exact key payload length, root metadata,
-  unknown/private versions, malformed SEC1 keys, invalid points, checksum and
-  alphabet errors, leading zeros, incompatible network/policy, hardened requests,
-  depth overflow and public index limits.
-- **Controlled rare outcomes:** zero tweak, scalar at/above curve order, infinity,
-  invalid non-terminal children and index exhaustion. Record any injection seam
-  and distinguish controlled observations from naturally occurring examples.
-- **Independent differential checks:** verify the actual property with an
-  independently implemented reference; investigate every disagreement.
-- **Adapter and environment checks:** deterministic outcomes, explicit failures,
-  missing runtime requirements, no backend fallback and no external-type leakage.
-- **Replacement conformance:** for each library-backed capability boundary, the
-  same contract suite and consuming compositions pass with two distinct libraries
-  through separate adapters, without changing semantic entities, contracts or
-  protocol compositions. Record provider versions, API differences, adapter
-  translations and explicit wiring changes. A missing qualified alternative is
-  an open gate, not evidence of replaceability.
-- **Reuse fitness:** demonstrate shared capability use across the three admitted
-  address compositions and mainnet/testnet definitions. Document the compatible
-  Bitcoin Cash extension analysis without shipping that future capability.
-- **Definition and invocation fitness:** verify malformed/unknown definition
-  fields, unsupported profiles, conflicting key/network/policy combinations and
-  missing wired capabilities fail at their declared boundary. Demonstrate that
-  changing valid network parameters requires no behavioral code changes, that
-  repeated calls do not mutate definitions, and that the selected public operation
-  produces the same results as direct compositions across the three admitted
-  policies. Apply this check to the invocable if that proposal is adopted.
+## 6. Execution sequence
 
-Use the existing `composer ci` checks, including Composer metadata/platform
-validation, PHP syntax, PHPUnit and PHPStan, on the supported PHP 8.1/8.3 matrix.
-Add only capability-relevant checks justified by this work. Verify the complete
-standalone flow without loading an upper-layer application.
+Feasibility analysis, contract refinement, protocol validation and adapter spikes
+are the **first implementation phase**, as established by canonical §34. They
+are not a new architecture-design phase that blocks all executable investigation.
 
-The independent-review package must identify the reviewed source revision,
-dependency lock and source references, definition/schema revisions and selected
-semantic policies, runtime/image identity, vector origins,
-commands, outputs, artifact hashes, candidate decisions and remaining limitations.
-Include a short implementation map identifying the public entry point, contracts,
-composition wiring, definition loader, provider adapters and tests, plus decision
-records explaining alternatives and rejected candidates. Record known limitations
-and reviewer findings with dispositions and affected evidence. This map describes
-the implemented revision, not the prospective examples.
-Hash manifests are integrity records, not independent attestations. Preserve the
-original review snapshot when making changes; produce a new identifiable snapshot
-and record which findings and tests the changes affect.
+| Stage | Deliverable | Exit gate | Current state |
+|---|---|---|---|
+| 1. Identify implementation work | Implementation PIP with admitted scope, canonical baseline, evidence links and open decisions. | Durable identity exists before material capability execution. This rewrite's PIP is not reused as implementation identity. | Pending. |
+| 2. Refine contracts and feasibility | Minimal semantic contracts, D01–D11 matrix, provider/reference candidates and invalid-child decision evidence. | Each required operation has an explicit OWN/COMPOSE/DELEGATE treatment, qualification route and recorded gaps. | Pinned candidates and bounded observations available; semantic contracts and full feasibility remain open. |
+| 3. Run spikes and establish corpus | ECC adapter spike, strict key/codec probes, normative/negative/rare-outcome tests and replacement evidence. | Required semantics and actual boundaries are demonstrated; unresolved provider gaps remain visible. | Raw provider probes available under PIP-0002; semantic-adapter/composition replacement and full corpus remain pending. |
+| 4. Select and record | Joint provider disposition, exact revisions, final slice contracts, definitions and error/result decisions. | Required qualification gates pass; architecture conflicts are reconciled explicitly rather than hidden in adapters. | Pending. |
+| 5. Implement the slice | One complete branch, then all three constructions on both networks; adapters, composition, validated definitions and standalone example. | Public flow works locally with explicit inputs, no vendor leakage and shared lower capabilities. | Pending. |
+| 6. Verify and self-challenge | Supported-runtime CI, reproducible evidence manifest, implementation map and FULL executor CP report. | Report identifies an exact candidate artifact; every applicable CP is conclusively satisfied for review readiness. | Pending. |
+| 7. Independently review and correct | Independent CP report, findings, dispositions and new reports for corrective cycles. | No applicable CP remains failed or unresolved; final reviewed artifact is identifiable. | Pending. |
 
-Do not claim a successful reference run certifies Primitives, a loaded-file list
-proves branch coverage, a local image ID proves a reproducible build, or an
-internal investigation constitutes independent review.
+Stages 2–3 iterate as evidence changes contracts or candidate feasibility. Failed
+qualification returns to research, not local algorithm implementation. Contract
+sketches and executable spikes are expected before final production selection.
+Concrete PHP diagrams should describe the resulting contracts and wiring, with
+editable sources; draft examples are not evidence of implementation.
 
-Update this working plan as research closes decisions. Promote only accepted,
-reconciled architectural knowledge into the canonical documents; keep experimental
-results and rejected candidates identifiable as research evidence.
+For the capability, run the repository's documented `composer ci` workflow on
+PHP 8.1 and 8.3, including Composer metadata/platform requirements, syntax,
+PHPUnit and PHPStan. Follow the [README development instructions](../README.md#development)
+for the container commands. Add capability-relevant conformance and differential
+checks, and verify the complete example without loading an upper-layer application.
+A passing setup test does not validate the future capability.
+
+## 7. Counter-Proof execution and independent review
+
+Use the canonical §0B meanings and the report protocol's templates directly.
+Maintain requirement-to-evidence traceability as work advances, so CP assessment
+can challenge concrete decisions rather than assertions of intended compliance.
+
+For this slice, prepare evidence around all twelve CPs:
+
+| CPs | Evidence to bring to assessment |
+|---|---|
+| CP-01–CP-04 | Admitted scope, dependency justification, shared compositions, data-only network variation and bounded reuse fitness analysis. |
+| CP-05–CP-07 | Responsibility matrix, minimal contracts, provider adapters, executed dependency paths, replacement results and explicit failure behavior. |
+| CP-08–CP-09 | Standalone public operation and example, domain isolation, public-only admission and rejection tests. |
+| CP-10–CP-11 | Protocol decisions, versioned specifications, distinct address constructions, vectors, rare outcomes and independent differential evidence. |
+| CP-12 | Scope exclusions, open-decision dispositions and justification for each introduced public API or abstraction. |
+
+These are evidence prompts, not preassigned PASS results. A FULL assessment
+considers every CP against the assessed artifact. Executor states are `PASS`,
+justified `N/A` and justified `UNRESOLVED`; unresolved means no compliance claim.
+The independent reviewer uses `PASS`, justified `N/A` or `FAIL` with a finding,
+and challenges both executor passes and exclusions independently.
+
+Store reports under the implementation PIP using
+`cp-executor-YYYY-MM-DD-HHmmss.md` and `cp-reviewer-YYYY-MM-DD-HHmmss.md`.
+Record actor, role, timezone-qualified timestamp, canonical version, coverage,
+exact artifact/revision and durable evidence references. Issued reports are
+immutable. A corrective PARTIAL assessment names its CPs and assesses impact on
+other CPs; it does not erase a prior failure or label unassessed CPs `N/A`.
+
+The review manifest must make the following recoverable:
+
+- requirement IDs linked to contracts, canonical sections, definitions, provider
+  revisions, vector/test IDs, commands and results;
+- exact source revision, dependency lock/source references, definition/schema
+  revisions, selected semantic policies and runtime/image identity;
+- public entry point, composition wiring, adapters, definition loading and tests;
+- decision records, rejected candidates, reference independence, known limitations
+  and remaining gaps;
+- execution outputs and artifact hashes, followed by reviewer findings and their
+  dispositions on each newly identified corrective snapshot.
+
+Hashes establish artifact identity, not independent attestation. A loaded-file
+list is not branch coverage, a local image ID is not proof of reproducible builds,
+and the existing internal BitWasp investigation is not independent review of
+Primitives. Preserve original review snapshots when producing corrections.
+
+## 8. Completion and immediate continuation
+
+Distinguish three milestones: **implemented and verified**, **ready for independent
+review**, and **independently assessed as canonical-compliant**. Neither local CI
+nor an executor report completes the third milestone. Publication and integration
+into surrounding domains are separate work, not hidden completion criteria here.
+
+The next capability work is to create its PIP, sketch the minimal contracts and
+extend the existing feasibility matrix with versioned qualification evidence,
+starting with ECC/BIP32. No production provider or PHP API is selected by this
+plan. If research exposes an architectural conflict, record it and reconcile it
+through the owning authority before accepting the affected result.
+
+This rewrite preserves the prior delivery scope, historical research and stronger
+local replacement check while replacing obsolete authority references and the
+old execution structure. Future updates should change current status from recorded
+evidence, keep research separate from accepted decisions and preserve issued
+assessment history.

@@ -3,10 +3,12 @@
 **Status:** discussion and feasibility-research input. Not canonical architecture,
 a dependency selection, a PHP API specification, or an implementation approval.
 
-The [execution plan's joint candidate worksheet](../PLAN-FIRST-CAPABILITY.md#3-joint-candidate-research-worksheet)
-contains the assistant's current recommendations and an intentionally empty user
-candidate column. Edit candidate proposals there; this inventory remains the
-reference for scope, responsibilities and per-item verification requirements.
+The [current provider worksheet](public-address-provider-research.md) contains
+updated candidates, bounded probe evidence and the user's independent-research
+column. The [historical worksheet](public-address-candidate-worksheet.md) preserves
+the 2026-09-28 leads. The [current execution plan](../PLAN-FIRST-CAPABILITY.md)
+governs delivery gates. This inventory supplies per-item research requirements,
+not architectural authority or evidence of current provider qualification.
 
 ## Scope and responsibility
 
@@ -20,7 +22,7 @@ elliptic-curve mathematics and standardized encoders/decoders must be provided
 by evaluated libraries or runtime facilities, regardless of implementation
 simplicity. A provider's API must not determine the domain model.
 
-The [current canonical](../architecture/paycrypto-primitives-canonical-architecture-reference-v1.4.md)
+The [current canonical](../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md)
 sections 10A–14 establish the semantic/delegation boundaries. Section 13.3 still
 contains open wording about codec implementation ownership; canonical promotion
 must reconcile that wording with the explicit delegation instruction recorded
@@ -110,8 +112,10 @@ this research requirement.
 
 BIP32 is a protocol composition, not an atomic hash or curve algorithm. Its
 semantic ownership does not settle implementation sourcing. The feasibility
-study must make that distinction explicit, without freezing an internal CKDpub
-implementation in advance.
+study must make that distinction explicit. Canonical §§10A and 12 permit owned
+CKDpub semantic composition over delegated HMAC and ECC; a complete external
+BIP32 provider is not a prerequisite. Do not reproduce cryptographic or codec
+internals from reference code.
 
 ## What remains owned
 
@@ -163,7 +167,9 @@ For every candidate, record:
    invalid-child tests, diagnostic behavior and reproducible commands.
 5. Independent reference implementation and shared-dependency analysis.
 6. Explicit backend-selection behavior, replacement route, runtime footprint
-   and measured performance for the required public operations. For each
+   and measured performance for the required public operations. Under the
+   execution plan's local qualification commitment (not a canonical provider-count
+   invariant), for each
    library-backed boundary, qualify two distinct libraries through separate
    adapters against the same contracts and consuming compositions; a missing
    second qualified provider remains an open gate.

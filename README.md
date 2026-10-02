@@ -182,6 +182,10 @@ gates. Its [composition/API examples](./docs/research/public-address-composition
 are proposals, not implemented public APIs. Production crypto/codec providers
 and independent review remain pending.
 
+The [current provider research](./docs/research/public-address-provider-research.md)
+records versioned candidates, bounded runtime probes, remaining qualification
+gaps and a column for independently researched alternatives.
+
 For human and AI-agent work, preserve this repository-first context. Material work is additionally identified by the current PayCrypto.Me Improvement Proposal (PIP), when applicable:
 
 ```text

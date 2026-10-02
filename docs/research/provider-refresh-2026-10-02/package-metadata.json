@@ -1,0 +1,169 @@
+[
+  {
+    "name": "paragonie/ecc",
+    "version": "v2.6.0",
+    "time": "2026-08-20T07:00:03+00:00",
+    "source": {
+      "url": "https://github.com/paragonie/phpecc.git",
+      "type": "git",
+      "reference": "1a49380410b8ce826bc7fd3de6324053e049205c"
+    },
+    "require": {
+      "php": "^7.1||^8.0",
+      "ext-gmp": "*",
+      "genkgo/php-asn1": "^2",
+      "paragonie/sodium_compat": "^1|^2"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "simplito/elliptic-php",
+    "version": "1.0.12",
+    "time": "2024-01-09T14:57:04+00:00",
+    "source": {
+      "url": "https://github.com/simplito/elliptic-php.git",
+      "type": "git",
+      "reference": "be321666781be2be2c89c79c43ffcac834bc8868"
+    },
+    "require": {
+      "ext-gmp": "*",
+      "simplito/bn-php": "~1.1.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "simplito/bn-php",
+    "version": "1.1.4",
+    "time": "2024-01-10T16:16:59+00:00",
+    "source": {
+      "url": "https://github.com/simplito/bn-php.git",
+      "type": "git",
+      "reference": "83446756a81720eacc2ffb87ff97958431451fd6"
+    },
+    "require": {
+      "simplito/bigint-wrapper-php": "~1.0.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "simplito/bigint-wrapper-php",
+    "version": "1.0.0",
+    "time": "2018-02-27T12:38:08+00:00",
+    "source": {
+      "url": "https://github.com/simplito/bigint-wrapper-php.git",
+      "type": "git",
+      "reference": "cf21ec76d33f103add487b3eadbd9f5033a25930"
+    },
+    "require": null,
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "tuupola/base58",
+    "version": "2.2.0",
+    "time": "2025-12-29T07:13:44+00:00",
+    "source": {
+      "url": "https://github.com/tuupola/base58.git",
+      "type": "git",
+      "reference": "a2fac671f14890c8fa62ac081eeeb90f42839637"
+    },
+    "require": {
+      "php": "^7.2|^8.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "stephenhill/base58",
+    "version": "v2.1.0",
+    "time": "2025-11-19T11:50:12+00:00",
+    "source": {
+      "url": "https://github.com/stephen-hill/base58php.git",
+      "type": "git",
+      "reference": "3030c00c0a1e1b78520f3ace6fbf813dacddfab5"
+    },
+    "require": {
+      "php": ">=8.1"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "bitwasp/bech32",
+    "version": "v0.0.1",
+    "time": "2018-02-05T22:23:47+00:00",
+    "source": {
+      "url": "https://github.com/Bit-Wasp/bech32.git",
+      "type": "git",
+      "reference": "e1ea58c848a4ec59d81b697b3dfe9cc99968d0e7"
+    },
+    "require": null,
+    "license": [
+      "Unlicense"
+    ]
+  },
+  {
+    "name": "bitwasp/bitcoin",
+    "version": "v1.1.0",
+    "time": "2026-02-25T12:01:13+00:00",
+    "source": {
+      "url": "https://github.com/Bit-Wasp/bitcoin-php.git",
+      "type": "git",
+      "reference": "527b1ee7d2cd958b5ce011c7918801ffbfb53f97"
+    },
+    "require": {
+      "php-64bit": ">=7.0",
+      "pleonasm/merkle-tree": "1.0.0",
+      "composer/semver": "^1.4.0|^3.2.0",
+      "lastguest/murmurhash": "v2.0.0",
+      "paragonie/ecc": "^2.1.0",
+      "bitwasp/buffertools": "^0.5.0",
+      "bitwasp/bech32": "^0.0.1"
+    },
+    "license": [
+      "Unlicense"
+    ]
+  },
+  {
+    "name": "bitwasp/buffertools",
+    "version": "v0.5.7",
+    "time": "2020-01-17T21:31:49+00:00",
+    "source": {
+      "url": "https://github.com/Bit-Wasp/buffertools-php.git",
+      "type": "git",
+      "reference": "133746d0b514e0016d8479b54aa97475405a9f1f"
+    },
+    "require": {
+      "php-64bit": ">=7.0.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "cardano-php/bech32",
+    "version": "v1.1.0",
+    "time": "2025-01-07T23:59:44+00:00",
+    "source": {
+      "url": "https://github.com/cardano-php/bech32.git",
+      "type": "git",
+      "reference": "4d46b51f78a1968d7d0a0ddccf9595ac47294060"
+    },
+    "require": {
+      "php": "^8.2",
+      "ext-sodium": "*"
+    },
+    "license": [
+      "Apache-2.0"
+    ]
+  }
+]

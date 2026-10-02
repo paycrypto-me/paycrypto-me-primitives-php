@@ -1,0 +1,100 @@
+[
+  {
+    "name": "bitwasp/bech32",
+    "version": "v0.0.1",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/Bit-Wasp/bech32.git",
+      "reference": "e1ea58c848a4ec59d81b697b3dfe9cc99968d0e7"
+    },
+    "require": null,
+    "license": [
+      "Unlicense"
+    ]
+  },
+  {
+    "name": "bitwasp/bitcoin",
+    "version": "v1.1.0",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/Bit-Wasp/bitcoin-php.git",
+      "reference": "527b1ee7d2cd958b5ce011c7918801ffbfb53f97"
+    },
+    "require": {
+      "bitwasp/bech32": "^0.0.1",
+      "bitwasp/buffertools": "^0.5.0",
+      "composer/semver": "^1.4.0|^3.2.0",
+      "lastguest/murmurhash": "v2.0.0",
+      "paragonie/ecc": "^2.1.0",
+      "php-64bit": ">=7.0",
+      "pleonasm/merkle-tree": "1.0.0"
+    },
+    "license": [
+      "Unlicense"
+    ]
+  },
+  {
+    "name": "bitwasp/buffertools",
+    "version": "v0.5.7",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/Bit-Wasp/buffertools-php.git",
+      "reference": "133746d0b514e0016d8479b54aa97475405a9f1f"
+    },
+    "require": {
+      "php-64bit": ">=7.0.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "genkgo/php-asn1",
+    "version": "v2.9.0",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/genkgo/php-asn1.git",
+      "reference": "dc535345d0ecc69181c6a1e17e57a625bd01f891"
+    },
+    "require": {
+      "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "paragonie/ecc",
+    "version": "v2.5.0",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/paragonie/phpecc.git",
+      "reference": "d25bd2aab9b1205db1cf3aa3e83531d4549377bf"
+    },
+    "require": {
+      "ext-gmp": "*",
+      "genkgo/php-asn1": "^2",
+      "paragonie/sodium_compat": "^1|^2",
+      "php": "^7.1||^8.0"
+    },
+    "license": [
+      "MIT"
+    ]
+  },
+  {
+    "name": "paragonie/sodium_compat",
+    "version": "v2.5.0",
+    "source": {
+      "type": "git",
+      "url": "https://github.com/paragonie/sodium_compat.git",
+      "reference": "4714da6efdc782c06690bc72ce34fae7941c2d9f"
+    },
+    "require": {
+      "php": "^8.1",
+      "php-64bit": "*"
+    },
+    "license": [
+      "ISC"
+    ]
+  }
+]
