@@ -12,6 +12,14 @@ not architectural authority or evidence of current provider qualification.
 
 ## Scope and responsibility
 
+**Research rule clarified 2026-10-03:** this inventory describes required
+operations independently of providers. Define each operation's contract and
+qualification criteria first, then discover and compare implementations. The
+existing named leads are preliminary, not a comprehensive or unbiased search.
+`bitwasp/bitcoin` is excluded from production options for this slice and retained
+only as reference evidence. A separately packaged focused codec such as
+`bitwasp/bech32` is evaluated on its own footprint and contract fit.
+
 The admitted requirement is public extended-key derivation to Bitcoin P2PKH,
 P2SH-P2WPKH and P2WPKH addresses, using validated network definitions. This
 inventory contains no knowledge of higher architectural layers.
@@ -102,7 +110,7 @@ this research requirement.
 
 | Item | Research treatment | Boundary constraint |
 |---|---|---|
-| BIP32 public derivation implementation | Evaluate whether a vetted public-derivation provider can satisfy the semantic contract, and which delegated capabilities its implementation actually uses. Compare this with the canonical capability-composition boundary before selecting an integration strategy. | No algorithm port from reference code. Retain control over public-only admission, invalid-child semantics, index limits, metadata and typed outcomes. A whole-library adapter is not automatically an acceptable composition. |
+| BIP32 public derivation composition | Define owned CKDpub semantics over delegated HMAC/ECC first. A focused external composition provider may be compared if justified; no complete BIP32 package is required. | No algorithm port from reference code. Retain public-only admission, invalid-child semantics, index limits, metadata and typed outcomes. The broad `bitwasp/bitcoin` package is reference-only, not a production option. |
 | HASH160 | Owned operation composed from delegated SHA-256 and RIPEMD-160, or an equivalent vetted provider operation | Composition is ours; neither hash implementation is ours. A convenience method does not require another dependency. |
 | Double SHA-256 and checksum support | May be provided within the selected Base58Check codec or by delegated hashing capabilities | No custom checksum/encoding algorithm implementation. Preserve the protocol contract regardless of provider packaging. |
 | Big integers, field elements and modular arithmetic | Evaluate as transitive backend requirements | No domain-wide arbitrary-precision math API is justified. GMP objects, provider scalars and point objects remain behind adapters. |
@@ -139,7 +147,7 @@ internals from reference code.
 | ECC | [`paragonie/ecc`](https://github.com/paragonie/phpecc), [`simplito/elliptic-php`](https://github.com/simplito/elliptic-php), [`libsecp256k1`](https://github.com/bitcoin-core/secp256k1) | Actual public-key API, correctness at boundaries, runtime dependencies, maintenance, and PHP deployment feasibility. A native library still requires an independently evaluated binding; none is selected here. |
 | Base58/Base58Check | [`tuupola/base58`](https://github.com/tuupola/base58); BitWasp reference codecs | Payload/version support, leading zeros, GMP independence where feasible, backend selection behavior, strict validation and dependency footprint |
 | Bech32/SegWit v0 | [`bitwasp/bech32`](https://github.com/Bit-Wasp/bech32); BIP173 reference implementations as verification anchors | Official vectors, API limits, supported runtimes, maintenance, and ability to keep the admitted surface at witness v0 |
-| Extended keys, public derivation and structural codecs | [`bitwasp/bitcoin`](https://github.com/Bit-Wasp/bitcoin-php) and its binary support as inspected reference evidence; broader candidate search remains to be done | Strict parsing, public-only exposure, invalid-child behavior, composition isolation and cost of unrelated dependencies |
+| Extended keys, public derivation and structural codecs | Owned composition and runtime conversion qualification; [`bitwasp/bitcoin`](https://github.com/Bit-Wasp/bitcoin-php) is comparison evidence only, excluded from production | Strict parsing, public-only exposure, invalid-child behavior and minimal delegated operations. Discover focused alternatives from those requirements. |
 
 These links establish starting points, not claims that a current release is
 maintained, secure, compatible, independently audited or appropriate for

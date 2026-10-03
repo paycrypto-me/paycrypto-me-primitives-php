@@ -7,6 +7,11 @@ The [provider refresh](research/public-address-provider-research.md), tracked by
 [PIP-0002](pips/PIP-0002/PIP-0002.md), adds pinned candidates and bounded executable
 probes. Full provider qualification and joint selection remain pending.
 
+**Research framing clarified 2026-10-03:** identify required delegated operations
+before searching for implementations. The current shortlist is preliminary, not
+evidence of a broad market comparison. `bitwasp/bitcoin` is reference-only and
+excluded from production options for this slice; see the research rules below.
+
 This plan turns the current architecture into executable work for the first
 Primitives capability. It is not a canonical, a dependency selection, or a frozen
 PHP API. The documentation rewrite is tracked by
@@ -137,6 +142,25 @@ license, runtime/extensions, dependency footprint, maintenance/security evidence
 actual executed dependency paths, unsupported behavior and reproducible results.
 
 ### Research priorities
+
+Begin with each required operation's inputs, outputs, invariants, failures and
+runtime constraints, independently of any vendor API. Then search for focused
+libraries or runtime facilities and compare them against those requirements.
+Familiarity and reference-application usage do not establish candidate preference.
+
+For this slice, exclude the broad `bitwasp/bitcoin` package from production even
+behind an adapter. API isolation does not eliminate its dependency footprint or
+unneeded wallet functionality. Keep it only as a research/test reference. The
+separate `bitwasp/bech32` package remains a focused codec candidate; assess the
+actual package and transitive graph rather than its organization name. Record
+direct candidates, transitive dependencies and verification references separately.
+
+Primitives-owned CKDpub composition over delegated HMAC/ECC is a legitimate
+starting design, not a last resort. A small external composition provider may be
+investigated if justified; a BIP32 package is not itself a delegated requirement.
+Missing algorithm or codec providers require further research or explicit scope
+reconsideration. A new specialized external library would be separate work with
+its own justification and verification, not an automatic exception to delegation.
 
 1. Define the minimum ECC and BIP32 semantic contracts; evaluate the canonical's
    initial `paragonie/ecc` candidate through an adapter. Compare materially
