@@ -6,7 +6,7 @@ a dependency selection, a PHP API specification, or an implementation approval.
 The [current provider worksheet](public-address-provider-research.md) contains
 updated candidates, bounded probe evidence and the user's independent-research
 column. The [historical worksheet](public-address-candidate-worksheet.md) preserves
-the 2026-09-28 leads. The [current execution plan](../PLAN-FIRST-CAPABILITY.md)
+the 2026-09-28 leads. The [current execution plan](../pips/PIP-0003/PIP-0003.md)
 governs delivery gates. This inventory supplies per-item research requirements,
 not architectural authority or evidence of current provider qualification.
 

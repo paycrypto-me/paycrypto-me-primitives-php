@@ -7,7 +7,7 @@ for updated recommendations, executed probes and new user candidate contribution
 The tables below preserve the earlier checkpoint.
 
 This worksheet records earlier research leads, not current provider qualification
-or dependency selections. Consult the [current execution plan](../PLAN-FIRST-CAPABILITY.md)
+or dependency selections. Consult the [current execution plan](../pips/PIP-0003/PIP-0003.md)
 for authority, execution gates and open decisions. No external source was
 revalidated as part of the documentation rewrite.
 

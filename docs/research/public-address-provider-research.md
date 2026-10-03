@@ -3,7 +3,7 @@
 **Research checkpoint: 2026-10-02. Status: preliminary qualification; no production
 selection. Work: [PIP-0002](../pips/PIP-0002/PIP-0002.md).**
 
-This is the current research worksheet for the [first capability plan](../PLAN-FIRST-CAPABILITY.md).
+This is the current research worksheet for the [first capability plan](../pips/PIP-0003/PIP-0003.md).
 It updates the [2026-09-28 recommendations](public-address-candidate-worksheet.md)
 with pinned package metadata, source inspection and bounded executable probes.
 The earlier worksheet and BitWasp observations remain historical evidence.
@@ -211,7 +211,7 @@ conformance verdict.
    boundaries. Run an actual Composer-resolved runtime/dependency matrix before
    final selection.
 
-Keep the [plan's Counter-Proof and independent-review gates](../PLAN-FIRST-CAPABILITY.md#7-counter-proof-execution-and-independent-review).
+Keep the [plan's Counter-Proof and independent-review gates](../pips/PIP-0003/PIP-0003.md#7-counter-proof-execution-and-independent-review).
 This research improves candidate evidence; it neither replaces the user's
 independent research nor records joint approval of a provider.
 

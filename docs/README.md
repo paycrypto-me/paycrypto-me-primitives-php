@@ -31,6 +31,13 @@ tools/
 
 ## Authority and purpose
 
+The active capability plan is
+[PIP-0003 — Public Address Derivation](pips/PIP-0003/PIP-0003.md).
+Its [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
+assesses architectural alignment only. PIP-0001 and PIP-0002 retain their separate
+documentation-rewrite and provider-research identities. The former
+`PLAN-FIRST-CAPABILITY.md` path is a navigation note for historical assessments.
+
 - `README.md` is the public entry point for the Primitives repository.
 - `docs/canonicals/primitives/` contains the current authoritative Primitives
   architecture reference.

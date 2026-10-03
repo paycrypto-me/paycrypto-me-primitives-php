@@ -2,7 +2,7 @@
 
 **Status: proposal — not implemented, not a frozen public API.**
 
-This note supports the [first capability plan](../PLAN-FIRST-CAPABILITY.md).
+This note supports the [first capability plan](../pips/PIP-0003/PIP-0003.md).
 The [canonical](../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md)
 owns the invariants; this note illustrates possible PHP usage. Bitcoin Cash is
 an architectural fitness example, not part of the initial delivery.
