@@ -211,22 +211,24 @@ Primitives uses a small project-local terminology where ordinary professional me
 For material Primitives work, the execution path is conceptually:
 
 ```text
-PIP / admitted requirement
+Originating Issue
+  identity + lifecycle + historical relationships
         ↓
-planning and implementation
+PIP (WHAT + WHY + BOUNDARIES)
+        │
+        │ APPROVED → proposal freezes
         ↓
-Executor Counter-Proof self-challenge
+Plan (when justified)
+  HOW + ORDER + EXECUTION within approved boundaries
         ↓
-candidate result
+PR(s) / implementation artifacts
         ↓
-independent Counter-Proof review
-        ↓
-canonical-compliant result or return to execution
+codebase / resulting repository state
 ```
 
-Counter-Proof reports are operational/provenance records, not a second architecture. The current Primitives canonical remains authoritative for the meaning, applicability, required properties, and deep rationale of each CP.
+Counter-Proof self-challenge and independent review provide Primitives verification evidence along this traceability path. Their reports are operational/provenance records, not a second architecture. The current Primitives canonical remains authoritative for the meaning, applicability, required properties, and deep rationale of each CP.
 
-Project-wide PIP conventions are defined by the [PayCrypto.Me PIP Specification](./docs/specifications/PIP-SPECIFICATION.md). Primitives-specific Counter-Proof reporting conventions are defined by the [Counter-Proof Report Protocol](./docs/protocols/primitives/COUNTER-PROOF-REPORT.md).
+Project-wide PIP conventions are defined by the [PayCrypto.Me PIP Specification v0.2](./docs/specifications/paycrypto-pip-specification-v0.2.md). Primitives-specific Counter-Proof reporting conventions are defined by the [Counter-Proof Report Protocol](./docs/protocols/primitives/COUNTER-PROOF-REPORT.md).
 
 ---
 

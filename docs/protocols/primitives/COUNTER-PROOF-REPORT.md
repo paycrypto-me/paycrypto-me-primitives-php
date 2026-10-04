@@ -37,27 +37,27 @@ references.
 
 # 2. Work identity and storage
 
-Material Primitives work evaluated by this protocol is identified by a **PIP — PayCrypto.Me Improvement Proposal** before material execution advances. PIP lifecycle and proposal conventions are governed by the PayCrypto.Me PIP Specification; this protocol requires only that each report identify the PIP it evaluates.
+Material Primitives work evaluated by this protocol is identified through an originating Issue and its Issue-derived **PIP — PayCrypto.Me Improvement Proposal** before material execution advances. Follow the [PayCrypto.Me PIP Specification](../../specifications/paycrypto-pip-specification-v0.2.md) for identity, lifecycle and planning. An Execution Plan follows PIP approval and is optional when execution complexity does not justify a separate Plan. Each report identifies the PIP and exact assessed artifact; preserve traceability from Issue through PIP, any justified Plan, PRs and repository changes.
 
 Recommended active physical grouping:
 
 ```text
 docs/
 └── pips/
-    └── PIP-0042/
-        ├── PIP-0042.md
+    └── PIP00042/
+        ├── PIP00042.md
         ├── cp-executor-2027-01-01-145959.md
         ├── cp-reviewer-2027-01-01-151203.md
         ├── cp-executor-2027-01-01-163411.md
         └── cp-reviewer-2027-01-01-170022.md
 ```
 
-The containing `PIP-NNNN` directory establishes the work identity. Each report also records `Work: PIP-NNNN` in its body, so repeating the PIP identifier in every report filename is unnecessary.
+The `PIPxxxxx` identity is `PIP` plus the originating Issue number, left-padded to a minimum width of five digits. Do not allocate PIP numbers independently. The containing directory carries that identity, and each report records it as `Work: PIPxxxxx`; repeating the PIP identifier in report filenames is unnecessary.
 
 When a PIP becomes inactive/resolved and satisfies the PIP Specification's archival requirements, its directory may move to:
 
 ```text
-docs/archives/pips/PIP-0042/
+docs/archives/pips/PIP00042/
 ```
 
 Archival placement is governed by the PIP Specification, not by this reporting protocol.
@@ -330,7 +330,7 @@ issued report.
 ``` markdown
 # Counter-Proof Report
 
-Work: PIP-____
+Work: PIPxxxxx
 Actor: <actor identity>
 Role: EXECUTOR
 Role Stamp: EXECUTOR SELF-CHALLENGE
@@ -434,7 +434,7 @@ conclusions to the Executor report.
 ``` markdown
 # Counter-Proof Report
 
-Work: PIP-____
+Work: PIPxxxxx
 Actor: <actor identity>
 Role: INDEPENDENT REVIEWER
 Role Stamp: INDEPENDENT COUNTER-VERIFICATION

@@ -12,15 +12,15 @@ docs/
 │   └── primitives/
 │       └── paycrypto-primitives-canonical-architecture-reference-v1.6.md
 ├── specifications/
-│   └── PIP-SPECIFICATION.md
+│   └── paycrypto-pip-specification-v0.2.md
 ├── protocols/
 │   └── primitives/
 │       └── COUNTER-PROOF-REPORT.md
 ├── pips/
-│   └── PIP-NNNN/                    # created when active PIPs exist
+│   └── PIPxxxxx/                    # Issue-derived identity for an active PIP
 ├── archives/
 │   └── pips/
-│       └── PIP-NNNN/                # created when PIPs are archived
+│       └── PIPxxxxx/                # preserved identity for an archived PIP
 └── research/                         # repository evidence/proposals when applicable
 
 tools/
@@ -51,6 +51,20 @@ documentation-rewrite and provider-research identities. The former
   specification.
 - `docs/archives/` is the generic documentation archive root. PIP archival uses
   `docs/archives/pips/`.
+- New material work starts from its originating Issue. Derive the `PIPxxxxx`
+  identity from that Issue; after approval, create a separate Execution Plan
+  only when execution complexity justifies one. Preserve traceability through
+  PRs to the resulting repository changes.
+- Historical PIP-0001 and PIP-0002 predate v0.2. Their issued `SHA256SUMS`
+  manifests identify the files assessed at the time, so checking them against
+  today's working tree is not a valid historical verification. Verify PIP-0001's
+  five files against its [assessed snapshot](pips/PIP-0001/SNAPSHOT.md), and
+  PIP-0002's 21 files against Git revision
+  `55b4a7bcbee1916801ef2c8387b11ee2650d456e`. Keep the issued manifests
+  unchanged when current documentation evolves.
+- The PIP-0003 execution package also predates v0.2. Its issued package manifest
+  identifies the baseline at Git revision `95e83842ed9f4a577998e49851449230f56f56b2`; the specification references
+  now distinguish that historical baseline from the current v0.2 rules.
 - `docs/research/` may contain evidence, investigations, spikes, and proposals.
   Those artifacts do not become canonical merely by being stored there.
 - `tools/skills/` contains reusable engineering/governance methods. Skills
@@ -60,7 +74,7 @@ documentation-rewrite and provider-research identities. The former
 ## Current authoritative set included in this package
 
 1. Primitives Canonical Architecture Reference v1.6
-2. PayCrypto.Me PIP Specification v0.1
+2. PayCrypto.Me PIP Specification v0.2
 3. Primitives Counter-Proof Report Protocol v1.1
 4. Domain Canonical Engineering Skill v1.1
 5. Canonical Document Governance Skill v1.1

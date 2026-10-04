@@ -478,13 +478,20 @@ identity that is independent from individual assessment reports.
 PayCrypto.Me uses a PIP — PayCrypto.Me Improvement Proposal:
 
 ``` text
-PIP-0042
-  ├── implementation revision
-  ├── executor assessment
-  ├── reviewer assessment
-  ├── corrective revision
-  └── partial reassessment
+Originating Issue #42
+  └── PIP00042 (derived from Issue #42)
+        ├── approved proposal: WHAT + WHY + BOUNDARIES
+        ├── optional Plan after approval: HOW + ORDER + EXECUTION
+        ├── PR(s) and implementation revisions
+        └── executor/reviewer assessments and corrective evidence
 ```
+
+The Issue owns identity, lifecycle, coordination and historical relationships.
+The PIP identity uses `PIP` plus the originating Issue number, left-padded to
+at least five digits; do not allocate PIP numbers independently. The PIP
+proposal freezes when approved. A Plan is optional, follows approval, and may
+evolve only within the approved proposal boundaries. Preserve traceability
+from Issue to PIP, any justified Plan, PRs and repository changes.
 
 The work identity answers **what change is being attempted**.
 

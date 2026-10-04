@@ -7,8 +7,10 @@ not need to attach canonical documents or reconstruct earlier conversations.
 
 This is a scoped execution aid derived from Public Architecture v1.1, Primitives
 v1.6, PIP Specification v0.1 and Counter-Proof Report Protocol v1.1. It creates no
-new architectural authority. Canonical citations below identify provenance and
-exception paths; they are not a mandatory reading list for every milestone.
+new architectural authority. Its PIP Specification v0.1 reference records the
+package baseline; current new material work follows v0.2 below. Canonical
+citations identify provenance and exception paths; they are not a mandatory
+reading list for every milestone.
 
 ## 1. Mission and boundaries
 
@@ -176,7 +178,8 @@ Authority references for those exceptions:
 
 - [Public Architecture v1.1](../../canonicals/public-architecture/paycrypto-public-architecture-canonical-v1.1.md): domain topology and public security boundary.
 - [Primitives v1.6](../../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md): domain decisions and CP meaning.
-- [PIP Specification v0.1](../../specifications/PIP-SPECIFICATION.md): work identity and history.
+- [PIP Specification v0.1 at the package baseline](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/95e83842ed9f4a577998e49851449230f56f56b2/docs/specifications/PIP-SPECIFICATION.md): historical work identity and history rules used when this package was recorded.
+- [Current PIP Specification v0.2](../../specifications/paycrypto-pip-specification-v0.2.md): Issue-derived identity, proposal lifecycle, approval and planning rules for new material work.
 - [Counter-Proof Report Protocol v1.1](../../protocols/primitives/COUNTER-PROOF-REPORT.md): reporting rules.
 
 If an authority or admitted decision changes, reconcile the affected plan/context/
@@ -370,4 +373,3 @@ Taproot as a fitness test, not a feature; §19 Non-Bitcoin protocols are
 architecture fitness tests; §28 Evidence-driven abstractions; §32
 Deliberately open decisions; §34 Recommended continuation sequence; §37
 Architectural anti-goals.
-
