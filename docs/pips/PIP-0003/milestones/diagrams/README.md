@@ -38,16 +38,44 @@ retain those properties; the MCP's background argument alone did not provide
 an opaque SVG canvas.
 
 Current PNGs are rasterizations of those exact finalized SVGs using `rsvg-convert`
-at 2000 pixels wide:
+at 1280 pixels wide:
 
 ```bash
-rsvg-convert --width 2000 --output public-address-flow.png public-address-flow.svg
-rsvg-convert --width 2000 --output ownership-and-delegation.png ownership-and-delegation.svg
+rsvg-convert --width 1280 --output public-address-flow.png public-address-flow.svg
+rsvg-convert --width 1280 --output ownership-and-delegation.png ownership-and-delegation.svg
 ```
 
 Both PNGs were visually inspected after rendering with librsvg, independently of
 the MCP's browser renderer. This checks SVG portability, not protocol correctness
 or behavior in every editor.
+
+## PNG compression
+
+After rasterization, compress the PNGs with [pngquant](https://pngquant.org/),
+tested here with version 3.0.3. This is a documentation tool, not a Composer or
+consumer dependency. The local binary is installed at `~/.local/bin/pngquant`
+from the project's official Linux distribution; another machine must provide
+its own installation.
+
+Run in this directory after the `rsvg-convert` commands above:
+
+```bash
+pngquant --quality 90-100 --speed 1 --nofs --strip --skip-if-larger --force --ext .png -- public-address-flow.png ownership-and-delegation.png
+```
+
+Quantization changes colors, not image dimensions or diagram topology. The
+minimum quality threshold rejects unsuitable output; disabling dithering avoids
+adding noise to flat diagram fills. `--skip-if-larger` retains the input when
+compression would grow it. Exit 99 means the quality floor could not be met;
+exit 98 means output would not be smaller. Both leave the input for review.
+Inspect exported images visually rather than treating the quality number as
+proof of readability. Always start from the SVG rasterization for regeneration,
+not an already quantized PNG.
+
+On 2026-10-06, the 1280-pixel exports decreased from 223.5 to 68.7 KiB for the
+public-address flow and from 232.2 to 66.2 KiB for ownership/delegation. The PNG
+dimensions were checked unchanged and both compressed images were visually
+inspected before replacing the raster exports.
 
 ## Copy, render and save
 
