@@ -228,7 +228,7 @@ codebase / resulting repository state
 
 Counter-Proof self-challenge and independent review provide Primitives verification evidence along this traceability path. Their reports are operational/provenance records, not a second architecture. The current Primitives canonical remains authoritative for the meaning, applicability, required properties, and deep rationale of each CP.
 
-Project-wide PIP conventions are defined by the [PayCrypto.Me PIP Specification v0.2](./docs/specifications/paycrypto-pip-specification-v0.2.md). Primitives-specific Counter-Proof reporting conventions are defined by the [Counter-Proof Report Protocol](./docs/protocols/primitives/COUNTER-PROOF-REPORT.md).
+Project-wide PIP conventions are defined by the [PayCrypto.Me PIP Specification v1.0](./docs/specifications/paycrypto-pip-specification-v1.0.md). Primitives-specific Counter-Proof reporting conventions are defined by the [Counter-Proof Report Protocol v1.5](./docs/protocols/primitives/COUNTER-PROOF-REPORT-v1.5.md).
 
 ---
 
@@ -286,7 +286,7 @@ Some contracts, implementation choices, protocol edge cases, and dependency sele
 
 That is deliberate. An unresolved question is preferable to a prematurely frozen abstraction.
 
-For the current source of truth, read the [canonical architecture](./docs/canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md) document in this repository.
+For the current source of truth, read the [canonical architecture v1.8](./docs/canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.8.md) document in this repository.
 
 Material PayCrypto.Me changes are identified through a **PIP — PayCrypto.Me Improvement Proposal**. PIP is a project-wide work/proposal identity; it does not replace this domain canonical or redefine Primitives architecture. When a Primitives PIP reaches implementation assessment, the Primitives Counter-Proof protocol provides the domain-specific executor self-challenge and independent review mechanism.
 

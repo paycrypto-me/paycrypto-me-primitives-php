@@ -10,12 +10,12 @@ README.md
 docs/
 ├── canonicals/
 │   └── primitives/
-│       └── paycrypto-primitives-canonical-architecture-reference-v1.6.md
+│       └── paycrypto-primitives-canonical-architecture-reference-v1.8.md
 ├── specifications/
-│   └── paycrypto-pip-specification-v0.2.md
+│   └── paycrypto-pip-specification-v1.0.md
 ├── protocols/
 │   └── primitives/
-│       └── COUNTER-PROOF-REPORT.md
+│       └── COUNTER-PROOF-REPORT-v1.5.md
 ├── pips/
 │   └── PIPxxxxx/                    # Issue-derived identity for an active PIP
 ├── archives/
@@ -64,7 +64,7 @@ documentation-rewrite and provider-research identities. The former
   unchanged when current documentation evolves.
 - The PIP-0003 execution package also predates v0.2. Its issued package manifest
   identifies the baseline at Git revision `95e83842ed9f4a577998e49851449230f56f56b2`; the specification references
-  now distinguish that historical baseline from the current v0.2 rules.
+  now distinguish that historical baseline from the current v1.0 rules.
 - `docs/research/` may contain evidence, investigations, spikes, and proposals.
   Those artifacts do not become canonical merely by being stored there.
 - `tools/skills/` contains reusable engineering/governance methods. Skills
@@ -73,9 +73,9 @@ documentation-rewrite and provider-research identities. The former
 
 ## Current authoritative set included in this package
 
-1. Primitives Canonical Architecture Reference v1.6
-2. PayCrypto.Me PIP Specification v0.2
-3. Primitives Counter-Proof Report Protocol v1.1
+1. Primitives Canonical Architecture Reference v1.8
+2. PayCrypto.Me PIP Specification v1.0
+3. Primitives Counter-Proof Report Protocol v1.5
 4. Domain Canonical Engineering Skill v1.1
 5. Canonical Document Governance Skill v1.1
 

@@ -15,7 +15,7 @@ are evidence to study, not code or architecture to reproduce.
 
 # Material work and PIPs
 
-Follow the current [PayCrypto.Me PIP Specification](docs/specifications/paycrypto-pip-specification-v0.2.md)
+Follow the current [PayCrypto.Me PIP Specification](docs/specifications/paycrypto-pip-specification-v1.0.md)
 for material work. A PIP MUST originate from an Issue in the repository that
 owns the work, and its `PIPxxxxx` identity MUST be derived from that Issue
 number; do not allocate an independent PIP sequence. The Issue carries identity,

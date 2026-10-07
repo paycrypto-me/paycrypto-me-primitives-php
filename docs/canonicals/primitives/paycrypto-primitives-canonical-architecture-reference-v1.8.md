@@ -1,6 +1,6 @@
 # PayCrypto.Me Primitives --- Canonical Architecture Reference
 
-## Architecture Baseline v1.6
+## Architecture Baseline v1.8
 
 > **Document role:** canonical, self-sufficient architecture reference
 > for the **PayCrypto.Me Primitives** domain\
@@ -74,87 +74,58 @@ produced it.
 > unless explicitly marked as an invariant. Most code snippets are
 > conceptual contracts used to communicate responsibility.
 
-## 0.1 Operational reading model
+## 0.1 Operational reading and verification model
 
-This canonical has two reading speeds.
+This canonical has two reading speeds: orientation to the accepted architecture,
+and targeted use of the twelve Counter-Proofs in §0B during relevant work.
+The Counter-Proofs index architectural invariants; their Deep References supply
+the authoritative nuance when a decision is uncertain.
 
-**First orientation.** A new engineer or agent should read enough of the
-canonical to understand the Primitives purpose, boundary, vocabulary,
-architectural thesis, accepted decisions, and deliberately open
-decisions.
+**Governance reference (weak coupling).** Work admission, PIP identity,
+approval, execution governance, and archival are governed solely by the
+**applicable adopted PayCrypto.Me PIP Specification**. This canonical neither
+redefines nor restates that mechanism. Primitives verification applies by
+technical impact, independently of whether the work has a PIP.
 
-**During execution.** The executor should keep the **Counter-Proof
-Control Surface** in section 0B as the active architectural index. The
-counter-proofs are compressed representations of deeper canonical
-knowledge; they do not replace that knowledge.
+**Proportional challenge.** For changes that can materially affect a Primitives
+architectural invariant or security/protocol correctness, the executor MUST
+challenge all applicable Counter-Proofs and MUST expose unresolved doubts.
+The reviewer MUST independently challenge applicable conclusions and any N/A
+claims before the affected result is accepted. Scope and risk determine which Counter-Proofs apply. Whether a change
+requires a PIP is decided exclusively by the applicable PIP Specification,
+not by the intensity of this domain's verification.
 
-**On doubt or deviation.** When a counter-proof raises doubt, fails to
-hold, or cannot be resolved confidently, follow its **Deep References**
-directly to the authoritative detailed sections. Do not repeatedly
-reread the entire canonical when the relevant architectural knowledge is
-already indexed.
+**Evidence, not document production.** The outcome and independent verification
+MUST be recoverable from durable repository-native evidence (PR review,
+commit, CI/test run, Issue discussion, or another appropriate record).
+A standalone Counter-Proof report is NOT intrinsically required. Use the
+companion `COUNTER-PROOF-REPORT-v1.5.md` only when the available evidence cannot
+communicate the required assessment, scope, findings, or provenance clearly.
+Do not create a report to prove that a review occurred when the review already
+records it. Independent verification is a substantive separation of judgment,
+not a demand for two Markdown files.
 
-**Before delivery.** Every counter-proof in the declared assessment
-coverage must be challenged. An executor records `PASS`, `N/A`, or
-`UNRESOLVED` according to the reporting semantics defined by the
-companion `COUNTER-PROOF-REPORT.md`.
-
-**Independent verification.** A reviewer independently challenges the
-delivered result against the same counter-proofs and records `PASS`,
-`N/A`, or `FAIL`. The reviewer does not inherit the executor's states as
-conclusions.
-
-The companion report defines the operational recording protocol,
-provenance fields, evidence references, FULL/PARTIAL coverage, immutable
-report history, and the Executor/Independent Reviewer templates. It does
-**not** define Primitives architecture. This canonical remains
-authoritative for the meaning and required properties of every
-counter-proof.
-
-Material implementation work evaluated through this mechanism is
-identified by its project work identity, a **PIP (PayCrypto.Me Improvement Proposal)**.
-PIP lifecycle and conventions are governed by the PayCrypto.Me PIP Specification;
-this canonical uses the PIP only as the identity of the material work being governed
-and evaluated.
+**Corrective work.** A failed or unresolved applicable Counter-Proof blocks
+acceptance of the affected result. Correct and re-verify the affected scope,
+including newly impacted Counter-Proofs. Preserve issued historical evidence;
+do not rewrite an old report or review to conceal a prior finding. Additional
+cycles do not automatically require new reports if repository-native records
+capture the new result and independent verification.
 
 Conceptually:
 
-``` text
-validated requirement / PIP
-          |
-          v
-planning and implementation
-          |
-          v
-EXECUTOR COUNTER-PROOF GATE
-          |
-          +-- doubt / violation / unresolved
-          |          |
-          |          v
-          |    investigate / revise
-          |          |
-          +----------+
-          |
-          v
-candidate result
-          |
-          v
-INDEPENDENT COUNTER-VERIFICATION
-          |
-     +----+----+
-     |         |
- PASS / N/A   FAIL
-     |         |
-     v         v
- compliant   return to execution
- result          |
-                 +--> partial corrective cycle when appropriate
+```text
+Primitives change → implementation / tests → applicable CP self-challenge
+                                  │
+                                  ▼
+                         independent verification
+                                  │
+                           PASS / N/A or FAIL
+                                  │
+                         correction if needed
+                                  ▼
+                      durable native evidence
 ```
-
-A later corrective cycle does not rewrite historical reports. It creates
-new immutable reports. A PARTIAL cycle may reassess only explicitly
-declared counter-proofs, plus any additional counter-proofs materially
-affected by the change.
 
 ------------------------------------------------------------------------
 
@@ -165,7 +136,7 @@ This section defines only PayCrypto.Me-specific, locally coined, or locally spec
 It is **not** a glossary of software engineering, cryptography, Bitcoin, or protocol terminology. Standard technical terms are defined in place only when Primitives gives them additional architectural semantics.
 
 **PIP — PayCrypto.Me Improvement Proposal**  
-Project-wide mechanism and stable work identity for a material proposed change to PayCrypto.Me. PIP lifecycle, storage, and proposal conventions are governed by the **PayCrypto.Me PIP Specification**. A PIP identifies the work; it does not itself define Primitives architecture.
+Project-wide governed proposal mechanism, defined exclusively by the **applicable adopted PayCrypto.Me PIP Specification**. Its governance rules are not duplicated here and do not define Primitives architecture.
 
 **CP — Counter-Proof**  
 Stable identifier prefix for a Counter-Proof in this canonical's execution-time Control Surface (`CP-01`, `CP-02`, ...). A CP challenges whether a material result preserves a required Primitives architectural property.
@@ -196,11 +167,11 @@ deliberately leaves implementation open.
 
 > **Counter-Proof Discipline**
 >
-> Whenever an implementation decision introduces or changes a
-> capability, composition, definition, adapter, dependency, semantic
-> type, execution path, protocol-specific behavior, or another material
-> Primitives decision, the executor MUST challenge the decision against
-> every applicable counter-proof in the declared coverage.
+> Whenever work materially affects a Primitives invariant, protocol/security
+> correctness, capability, composition, definition, adapter, dependency,
+> semantic type, or execution path, the executor MUST challenge every
+> applicable Counter-Proof. This obligation is independent of whether the
+> work has a PIP; PIP admission belongs to the applicable adopted PIP Specification.
 >
 > Passing tests or satisfying the immediate use case does not waive this
 > gate. If an applicable counter-proof cannot be satisfied or
@@ -430,8 +401,10 @@ cannot yet be conclusively satisfied.
 For the reviewer, `FAIL` is an independent rejection of the assessed
 result against an applicable counter-proof.
 
-The operational report format and provenance requirements are delegated
-to `COUNTER-PROOF-REPORT.md`.
+Recoverable assessment and provenance are required; a separate report is not.
+The companion `COUNTER-PROOF-REPORT-v1.5.md` offers a structured recording option
+when repository-native reviews and checks are insufficient. It MUST NOT impose
+extra PIP governance rules, duplicate evidence, or mandate report files.
 
 ------------------------------------------------------------------------
 
@@ -2941,7 +2914,7 @@ Principal changes:
 7.  The canonical delegates report formatting, provenance/evidence
     recording, FULL/PARTIAL coverage, immutable report history, work
     identity, and corrective-cycle mechanics to the sibling
-    `COUNTER-PROOF-REPORT.md`.
+    `COUNTER-PROOF-REPORT-v1.5.md`.
 8.  Existing Architecture Fitness Tests remain deeper architectural
     reference material; the new control surface indexes and
     operationalizes them rather than replacing them.
@@ -2967,4 +2940,34 @@ Principal changes:
 5. The Counter-Proof Control Surface moves from §0A to §0B so terminology is available before execution semantics.
 6. No Primitives capability, protocol composition, requirement, guarantee, assumption, dependency choice, compatibility constraint, verification semantic, accepted invariant, deliberately open implementation decision, rejected approach, fitness test, handoff constraint, or domain-boundary rule is removed by this revision.
 
-Per the canonical replacement policy, **v1.6 supersedes v1.5 and is the current source of truth for the PayCrypto.Me Primitives domain**.
+Per the canonical replacement policy, **v1.6 superseded v1.5 at the v1.6 checkpoint**.
+
+## 42.5 v1.7 revision record
+
+This revision supersedes v1.6 and aligns Primitives execution governance with
+PayCrypto.Me PIP Specification v1.0. It does not alter any of the twelve
+Counter-Proof architectural properties, domain boundaries, crypto/protocol
+requirements, or deliberately open implementation decisions.
+
+1. An ordinary Issue is a valid work identity; a PIP exists only after the
+   project-wide Materiality Gate is crossed.
+2. Independent Counter-Proof verification remains required for applicable
+   material Primitives outcomes, irrespective of PIP presence.
+3. Recoverable evidence and independent judgment are required; standalone
+   executor/reviewer Markdown reports are not universally required.
+4. GitHub PR review, commits, tests, CI, and Issue references are preferred
+   when they already preserve sufficient provenance and findings.
+5. Corrective cycles preserve historical evidence without multiplying
+   auxiliary reports merely to signal activity.
+6. The companion protocol defines an optional structured report format and
+   cannot expand the Canonical or PIP Specification's authority.
+
+**At the v1.7 checkpoint**, v1.7 superseded v1.6 as the Primitives canonical baseline.
+
+
+
+## v1.8 — authority-boundary alignment
+
+v1.8 removes duplicated project-wide PIP admission and workflow language in favor of a weak normative reference to the applicable adopted PIP Specification. Primitives alone continues to own its architectural invariants, the twelve Counter-Proofs, their technical applicability, executor self-challenge, independent verification, and acceptance semantics. The companion remains an optional evidence-recording format, not a new authority. No accepted cryptographic, protocol, composition, security, or cross-domain boundary is changed by this revision.
+
+> **v1.8 supersedes v1.7 as the current Primitives canonical baseline upon adoption.**

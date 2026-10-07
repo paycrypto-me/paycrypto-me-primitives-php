@@ -92,11 +92,12 @@ These are Public Architecture constraints, not universal claims about every poss
 
 ```text
 PayCrypto.Me Public Architecture
-├── Consumer
-├── SDK
-├── Core
-├── Primitives
-└── Supply Chain Assurance
+|
++-- Consumer
++-- SDK
++-- Core
++-- Primitives
+`-- Supply Chain Assurance
 ```
 
 At the cross-domain level:
