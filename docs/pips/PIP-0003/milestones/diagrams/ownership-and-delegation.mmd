@@ -1,0 +1,54 @@
+---
+config:
+  htmlLabels: false
+  flowchart:
+    htmlLabels: false
+---
+flowchart TB
+    subgraph own["OWN: Semantic boundaries"]
+        operation["R01 / R12<br/>Request admission, result and failure meanings"]
+        definition["R02<br/>Validated immutable definition data"]
+        keypath["R03 / R04 / R06 / R07<br/>Public key, extended key, path and tweak invariants"]
+    end
+    subgraph compose["COMPOSE: Protocol behavior"]
+        bip32["R05: BIP32 CKDpub<br/>Public derivation and metadata transitions"]
+        hash160["R08: HASH160<br/>SHA-256 then RIPEMD-160"]
+        addresses["R09-R11: Address constructions<br/>P2PKH / P2SH-P2WPKH / P2WPKH<br/>Shared derivation and hashing; distinct terminal semantics"]
+    end
+    boundary["Semantic adapter / runtime boundary<br/>Bytes and owned outcomes across the boundary<br/>Explicit wiring; vendor objects and errors contained"]
+    subgraph delegate["DELEGATE: Runtime / libraries"]
+        hashes["D01-D03<br/>SHA-256, RIPEMD-160 and HMAC-SHA512"]
+        ecc["D04-D05<br/>Compressed-point validation and serialization<br/>Public scalar tweak mathematics"]
+        checked["D06-D07<br/>Bitcoin Base58 / Base58Check"]
+        witness["D08-D09<br/>Bech32 / SegWit v0 codec"]
+        conversion["D10-D11<br/>Structural decoding and fixed-width conversions"]
+    end
+    pending["O07: Providers not selected<br/>M03-M04: Conformance and replacement qualification<br/>M05: Joint selection before production wiring"]
+
+    operation --> keypath
+    operation --> addresses
+    definition -->|Validated parameters| keypath
+    definition -->|Validated parameters| addresses
+    keypath --> bip32
+    bip32 -->|Derived compressed key| addresses
+    addresses -->|Key or redeem-script hash| hash160
+    bip32 -->|Parent fingerprint| hash160
+    keypath -->|Admission machinery| boundary
+    bip32 -->|HMAC, ECC and conversion| boundary
+    hash160 -->|Hash algorithms| boundary
+    addresses -->|Encoding and required serialization machinery| boundary
+    boundary --> hashes
+    boundary --> ecc
+    boundary --> checked
+    boundary --> witness
+    boundary --> conversion
+    pending -.-> boundary
+
+    classDef owned fill:#eaf2ff,stroke:#2456a6,color:#14233b
+    classDef composed fill:#eaf7ed,stroke:#28783b,color:#173b20
+    classDef delegated fill:#f1edff,stroke:#6551a3,color:#31244e
+    classDef open fill:#fff8df,stroke:#98751c,color:#47380e
+    class operation,definition,keypath owned
+    class bip32,hash160,addresses composed
+    class boundary,hashes,ecc,checked,witness,conversion delegated
+    class pending open

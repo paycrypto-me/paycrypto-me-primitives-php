@@ -1,0 +1,53 @@
+---
+config:
+  htmlLabels: false
+  flowchart:
+    htmlLabels: false
+---
+flowchart TD
+    request["R01: Explicit request<br/>Public extended key + relative public path<br/>Network definition + address policy"]
+    definitions["R02: Validate definition data<br/>Network parameters and compatible profiles"]
+    admission["R03 / R04 / R06: Admit inputs<br/>Public key, metadata and bounded public path<br/>Explicit network and policy compatibility"]
+    derivation["R05 / R07 / R08: Derive public key<br/>Owned BIP32 composition<br/>Delegated HMAC, ECC, hashing and conversion"]
+    keyhash["R08: HASH160 of compressed public key<br/>Compose delegated SHA-256 and RIPEMD-160"]
+    policy{"Explicit address policy"}
+    legacy["R09: P2PKH<br/>Public-key hash + P2PKH version<br/>Delegated Base58Check"]
+    nested["R10: P2SH-P2WPKH<br/>Witness redeem script then HASH160<br/>P2SH version + delegated Base58Check"]
+    native["R11: P2WPKH<br/>Witness v0 + 20-byte public-key hash<br/>Network HRP + delegated SegWit codec"]
+    result["R01: Public address result<br/>Network, policy and actual path context"]
+    failure["R12: Defined failure<br/>No partial address or silent provider fallback"]
+    pending["M02 decisions remain open<br/>O01: Invalid-child advancement and effective paths<br/>O02: Version / network / policy matrix<br/>O03-O06: API, limits, definitions and failures"]
+
+    request --> definitions
+    definitions --> admission
+    admission --> derivation
+    derivation --> keyhash
+    keyhash --> policy
+    policy -->|P2PKH| legacy
+    policy -->|P2SH-P2WPKH| nested
+    policy -->|P2WPKH| native
+    definitions -->|P2PKH version| legacy
+    definitions -->|P2SH version| nested
+    definitions -->|Network HRP| native
+    legacy --> result
+    nested --> result
+    native --> result
+    definitions -->|Invalid definition| failure
+    admission -->|Rejected input or intent| failure
+    derivation -->|Defined derivation or provider failure| failure
+    keyhash -->|Provider or environment failure| failure
+    legacy -->|Construction or codec failure| failure
+    nested -->|Construction or codec failure| failure
+    native -->|Construction or codec failure| failure
+    pending -.-> admission
+    pending -.-> derivation
+    pending -.-> result
+
+    classDef owned fill:#eaf2ff,stroke:#2456a6,color:#14233b
+    classDef outcome fill:#eaf7ed,stroke:#28783b,color:#173b20
+    classDef error fill:#fff0ee,stroke:#b33d32,color:#57231e
+    classDef open fill:#fff8df,stroke:#98751c,color:#47380e
+    class request,definitions,admission,derivation,keyhash,policy,legacy,nested,native owned
+    class result outcome
+    class failure error
+    class pending open
