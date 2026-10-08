@@ -17,14 +17,14 @@ docs/
 │   └── primitives/
 │       └── COUNTER-PROOF-REPORT-v1.5.md
 ├── pips/
-│   ├── PIP-0001/, PIP-0002/        # historical, pending Issue closure and archival
 │   ├── PIP-0003/                    # consolidated historical capability record
 │   └── PIPxxxxx/                    # Issue-derived identity for a new governed PIP
 └── research/                         # repository evidence/proposals when applicable
 
-archives/                              # ignored local archive after Issue closure
+archives/                              # ignored, local to the archiving checkout
 └── pips/
-    └── PIPxxxxx/
+    ├── PIP-0001/
+    └── PIP-0002/
 
 tools/
 └── skills/
@@ -50,7 +50,7 @@ navigation note for historical assessments.
 - `docs/protocols/primitives/` contains Primitives-specific operational
   protocols. Counter-Proof reporting is operational/provenance machinery; the
   Primitives canonical owns the architectural meaning of each CP.
-- `docs/pips/` contains the historical capability workspaces and any new
+- `docs/pips/` contains the consolidated historical capability workspace and any new
   material-work workspace admitted under the current PIP Specification.
 - PIP archival uses the ignored project-root `archives/pips/` after the
   originating Issue closes, with the whole workspace moved in a separate
@@ -59,8 +59,10 @@ navigation note for historical assessments.
   identity from that Issue; after approval, create a separate Execution Plan
   only when execution complexity justifies one. Preserve traceability through
   PRs to the resulting repository changes.
-- Historical PIP-0001 and PIP-0002 predate v0.2. Their workspaces remain
-  intact pending Issue disposition and eventual archival. Their issued `SHA256SUMS`
+- Historical PIP-0001 and PIP-0002 predate v0.2. After their Issues closed, their
+  complete workspaces were copied to the ignored local archive and removed from
+  the tracked current tree. Git history is their durable, shared recovery path.
+  Their issued `SHA256SUMS`
   manifests identify the files assessed at the time, so checking them against
   today's working tree is not a valid historical verification. Verify PIP-0001's
   five files against its [assessed snapshot](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/55b4a7bcbee1916801ef2c8387b11ee2650d456e/docs/pips/PIP-0001/SNAPSHOT.md), and
