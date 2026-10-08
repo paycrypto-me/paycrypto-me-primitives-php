@@ -1,6 +1,6 @@
 # Provider refresh — reproducible research evidence
 
-Checkpoint: 2026-10-02. Work: [PIP-0002](../../pips/PIP-0002/PIP-0002.md).
+Checkpoint: 2026-10-02. Historical work: [PIP-0002](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/83ccd5571843eed57726e140e493868f0f152b5f/docs/pips/PIP-0002/PIP-0002.md).
 Conclusions and candidate inputs belong to the [current worksheet](../public-address-provider-research.md).
 This directory records a bounded feasibility investigation, not production
 qualification or an independent review.

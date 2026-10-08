@@ -176,9 +176,9 @@ Then read the current Primitives canonical architecture. The public
 architecture document provides context and navigation; the Primitives canonical
 remains the authority for Primitives internals and its evolution.
 
-The [public address derivation plan (PIP-0003)](./docs/pips/PIP-0003/PIP-0003.md) records
-delivery scope, candidate research, contract responsibilities and verification
-gates. Its [composition/API examples](./docs/research/public-address-composition-proposal.md)
+The [consolidated public address record (historical PIP-0003)](./docs/pips/PIP-0003/PIP-0003.md)
+identifies the first capability's scope, evidence and open decisions. Its
+[composition/API examples](./docs/research/public-address-composition-proposal.md)
 are proposals, not implemented public APIs. Production crypto/codec providers
 and independent review remain pending.
 

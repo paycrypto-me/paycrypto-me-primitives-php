@@ -17,11 +17,14 @@ docs/
 │   └── primitives/
 │       └── COUNTER-PROOF-REPORT-v1.5.md
 ├── pips/
-│   └── PIPxxxxx/                    # Issue-derived identity for an active PIP
-├── archives/
-│   └── pips/
-│       └── PIPxxxxx/                # preserved identity for an archived PIP
+│   ├── PIP-0001/, PIP-0002/        # historical, pending Issue closure and archival
+│   ├── PIP-0003/                    # consolidated historical capability record
+│   └── PIPxxxxx/                    # Issue-derived identity for a new governed PIP
 └── research/                         # repository evidence/proposals when applicable
+
+archives/                              # ignored local archive after Issue closure
+└── pips/
+    └── PIPxxxxx/
 
 tools/
 └── skills/
@@ -31,12 +34,12 @@ tools/
 
 ## Authority and purpose
 
-The active capability plan is
-[PIP-0003 — Public Address Derivation](pips/PIP-0003/PIP-0003.md).
-Its [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
-assesses architectural alignment only. PIP-0001 and PIP-0002 retain their separate
-documentation-rewrite and provider-research identities. The former
-`PLAN-FIRST-CAPABILITY.md` path is a navigation note for historical assessments.
+The [consolidated first-capability record](pips/PIP-0003/PIP-0003.md) is the
+current entry point for public address derivation. It retains the historical
+PIP-0003 identity and links the useful results of PIP-0001 and PIP-0002 without
+changing their issued records. The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
+assesses an earlier plan only. The former `PLAN-FIRST-CAPABILITY.md` path is a
+navigation note for historical assessments.
 
 - `README.md` is the public entry point for the Primitives repository.
 - `docs/canonicals/primitives/` contains the current authoritative Primitives
@@ -47,24 +50,27 @@ documentation-rewrite and provider-research identities. The former
 - `docs/protocols/primitives/` contains Primitives-specific operational
   protocols. Counter-Proof reporting is operational/provenance machinery; the
   Primitives canonical owns the architectural meaning of each CP.
-- `docs/pips/` is the active material-work space defined by the PIP
-  specification.
-- `docs/archives/` is the generic documentation archive root. PIP archival uses
-  `docs/archives/pips/`.
+- `docs/pips/` contains the historical capability workspaces and any new
+  material-work workspace admitted under the current PIP Specification.
+- PIP archival uses the ignored project-root `archives/pips/` after the
+  originating Issue closes, with the whole workspace moved in a separate
+  post-execution housekeeping commit.
 - New material work starts from its originating Issue. Derive the `PIPxxxxx`
   identity from that Issue; after approval, create a separate Execution Plan
   only when execution complexity justifies one. Preserve traceability through
   PRs to the resulting repository changes.
-- Historical PIP-0001 and PIP-0002 predate v0.2. Their issued `SHA256SUMS`
+- Historical PIP-0001 and PIP-0002 predate v0.2. Their workspaces remain
+  intact pending Issue disposition and eventual archival. Their issued `SHA256SUMS`
   manifests identify the files assessed at the time, so checking them against
   today's working tree is not a valid historical verification. Verify PIP-0001's
-  five files against its [assessed snapshot](pips/PIP-0001/SNAPSHOT.md), and
+  five files against its [assessed snapshot](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/55b4a7bcbee1916801ef2c8387b11ee2650d456e/docs/pips/PIP-0001/SNAPSHOT.md), and
   PIP-0002's 21 files against Git revision
   `55b4a7bcbee1916801ef2c8387b11ee2650d456e`. Keep the issued manifests
   unchanged when current documentation evolves.
 - The PIP-0003 execution package also predates v0.2. Its issued package manifest
-  identifies the baseline at Git revision `95e83842ed9f4a577998e49851449230f56f56b2`; the specification references
-  now distinguish that historical baseline from the current v1.0 rules.
+  identifies the baseline at Git revision `95e83842ed9f4a577998e49851449230f56f56b2`;
+  the full former plan is recoverable at `247f1f1`. These historical artifacts
+  do not establish v1.0 approval or a current Execution Plan.
 - `docs/research/` may contain evidence, investigations, spikes, and proposals.
   Those artifacts do not become canonical merely by being stored there.
 - `tools/skills/` contains reusable engineering/governance methods. Skills

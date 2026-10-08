@@ -6,8 +6,8 @@ a dependency selection, a PHP API specification, or an implementation approval.
 The [current provider worksheet](public-address-provider-research.md) contains
 updated candidates, bounded probe evidence and the user's independent-research
 column. The [historical worksheet](public-address-candidate-worksheet.md) preserves
-the 2026-09-28 leads. The [current execution plan](../pips/PIP-0003/PIP-0003.md)
-governs delivery gates. This inventory supplies per-item research requirements,
+the 2026-09-28 leads. The [consolidated capability record](../pips/PIP-0003/PIP-0003.md)
+identifies the scope and evidence. This inventory supplies per-item research requirements,
 not architectural authority or evidence of current provider qualification.
 
 ## Scope and responsibility
@@ -16,8 +16,10 @@ not architectural authority or evidence of current provider qualification.
 operations independently of providers. Define each operation's contract and
 qualification criteria first, then discover and compare implementations. The
 existing named leads are preliminary, not a comprehensive or unbiased search.
-`bitwasp/bitcoin` is excluded from production options for this slice and retained
-only as reference evidence. A separately packaged focused codec such as
+At this research checkpoint, `bitwasp/bitcoin` was excluded from production
+options for this slice on footprint grounds and retained as reference evidence.
+This is a dated candidate disposition, not an architectural invariant or final
+provider selection. A separately packaged focused codec such as
 `bitwasp/bech32` is evaluated on its own footprint and contract fit.
 
 The admitted requirement is public extended-key derivation to Bitcoin P2PKH,
@@ -30,7 +32,7 @@ elliptic-curve mathematics and standardized encoders/decoders must be provided
 by evaluated libraries or runtime facilities, regardless of implementation
 simplicity. A provider's API must not determine the domain model.
 
-The [current canonical](../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.6.md)
+The [current canonical](../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.8.md)
 sections 10A–14 establish the semantic/delegation boundaries. Section 13.3 still
 contains open wording about codec implementation ownership; canonical promotion
 must reconcile that wording with the explicit delegation instruction recorded

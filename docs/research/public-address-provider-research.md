@@ -1,9 +1,9 @@
 # Public Address Derivation — Provider Research
 
-**Research checkpoint: 2026-10-02. Status: preliminary qualification; no production
-selection. Work: [PIP-0002](../pips/PIP-0002/PIP-0002.md).**
+**Research checkpoint: 2026-10-02. Preliminary feasibility evidence; no production
+selection. Historical work: [PIP-0002](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/83ccd5571843eed57726e140e493868f0f152b5f/docs/pips/PIP-0002/PIP-0002.md).**
 
-This is the current research worksheet for the [first capability plan](../pips/PIP-0003/PIP-0003.md).
+This is the research worksheet linked from the [consolidated first-capability record](../pips/PIP-0003/PIP-0003.md).
 It updates the [2026-09-28 recommendations](public-address-candidate-worksheet.md)
 with pinned package metadata, source inspection and bounded executable probes.
 The earlier worksheet and BitWasp observations remain historical evidence.
@@ -211,7 +211,11 @@ conformance verdict.
    boundaries. Run an actual Composer-resolved runtime/dependency matrix before
    final selection.
 
-Keep the [plan's Counter-Proof and independent-review gates](../pips/PIP-0003/PIP-0003.md#7-counter-proof-execution-and-independent-review).
+Apply the [current canonical's](../canonicals/primitives/paycrypto-primitives-canonical-architecture-reference-v1.8.md)
+technical Counter-Proofs and the [current reporting protocol](../protocols/primitives/COUNTER-PROOF-REPORT-v1.5.md)
+to the actual implementation artifact. The consolidated record identifies the
+historical plan's two-library exercise as a verification method to reassess,
+not an approved current gate.
 This research improves candidate evidence; it neither replaces the user's
 independent research nor records joint approval of a provider.
 

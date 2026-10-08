@@ -1,5 +1,6 @@
 /vendor/
 /composer.lock
+/archives/
 /.phpunit.cache/
 /.phpunit.result.cache
 /.phpstan.cache/
