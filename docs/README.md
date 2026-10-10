@@ -45,8 +45,7 @@ implementation sequence and technical gates.
 is its retrospective coordination anchor. The plan, old execution package and
 M01 draft do not establish v1.0 approval or current execution authorization.
 The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
-assesses an earlier plan only. The former `PLAN-FIRST-CAPABILITY.md` path is a
-navigation note for historical assessments.
+assesses an earlier plan only, recoverable at [revision `83ccd557`](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/83ccd5571843eed57726e140e493868f0f152b5f/docs/PLAN-FIRST-CAPABILITY.md).
 
 - `README.md` is the public entry point for the Primitives repository.
 - `docs/canonicals/primitives/` contains the current authoritative Primitives
