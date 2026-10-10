@@ -59,7 +59,7 @@ Every new PIP MUST originate from an already-existing Issue in the repository ow
 
 Examples: `#1 → PIP00001`; `#42 → PIP00042`; `#100000 → PIP100000`. Identifiers are intentionally sparse; missing numbers imply nothing.
 
-A formal PIP is created only after the Materiality Gate is crossed and the proposal is sufficiently formed for decision. Preliminary research, debate, and refinement belong on the Issue. No `Draft` state is required.
+A formal PIP MAY be created once the originating Issue identifies a material governed change and its intended WHAT, WHY, and BOUNDARIES can be expressed for architectural review. The Materiality Gate does not require preliminary research, formal debate, proof of feasibility, or execution design. Investigation and discussion MAY take place on the Issue as needed to establish materiality or clarify the proposal; they are not mandatory stages or separate evidence requirements. The Issue may evolve through discussion. No `Draft` PIP state is required; execution planning belongs after approval.
 
 The active workspace is:
 
@@ -70,7 +70,7 @@ docs/pips/PIP00042/
 
 Upon creating the PIP, a simple link to its proposal SHOULD be added to the originating Issue, without requiring labels, subissues, extra fields, or rewriting the Issue body. The Issue SHOULD identify the escalation rationale sufficiently to make the decision path understandable.
 
-A generic Issue template MAY guide contributors using **Motivation**, **Current Context**, **Expected Outcome**, and **Additional Information**. These prompts MUST NOT imply that every Issue requires a PIP, Plan, or proposed technical implementation.
+A generic Issue template MAY guide contributors using **Motivation**, **Current Context**, **Expected Outcome**, and **Additional Information**. These sections are guidance, not mandatory content quotas; contributors MAY omit inapplicable or redundant sections. Issues SHOULD be clear, concise, and provide sufficient information for evaluation, with detail proportional to the request. They may gain context through ordinary discussion. These prompts MUST NOT imply that every Issue requires a PIP, Plan, or proposed technical implementation.
 
 ## 4. The proposal: WHAT, WHY, BOUNDARIES
 
@@ -93,7 +93,7 @@ Origin: <repository>#42
 ## Open questions
 ```
 
-The content MUST make the intended decision and its governing boundaries reviewable. `Open questions` MAY be omitted when none remain; unresolved material questions MUST be resolved before approval. The proposal MUST NOT contain mutable `Status` or other lifecycle fields mirroring GitHub.
+The content MUST make the intended decision and its governing boundaries reviewable. The originating Issue's author need not supply an architectural solution; when a PIP is warranted, its proposal identifies the governed change without requiring an implementation Plan or proof of feasibility as a universal admission prerequisite. `Open questions` MAY be omitted when none remain; unresolved material questions MUST be resolved before approval. The proposal MUST NOT contain mutable `Status` or other lifecycle fields mirroring GitHub.
 
 The proposal MAY be revised during review **before** the decision. Once approved, its exact approved Git revision is frozen; later execution notes or Plans MUST NOT silently change its WHAT, WHY, or BOUNDARIES.
 
