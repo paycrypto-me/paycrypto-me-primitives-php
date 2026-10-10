@@ -121,5 +121,7 @@ planning documents only. Original [execution context](EXECUTION-CONTEXT.md),
 [report templates](COUNTER-PROOF-TEMPLATES.md), [handoff template](MILESTONE-HANDOFF-TEMPLATE.md),
 [snapshots](snapshots/README.md), and checksum manifests remain unchanged as
 historical package evidence. Their older procedural instructions are not the
-current governing rules. Consult their exact Git revisions and assessed hashes
-when reconstructing a historical conclusion.
+current governing rules. References to `PIP-0003.md` as a plan in those records
+mean the file at their assessed Git revisions, not the present capability
+proposal. Consult those revisions and assessed hashes when reconstructing a
+historical conclusion.
