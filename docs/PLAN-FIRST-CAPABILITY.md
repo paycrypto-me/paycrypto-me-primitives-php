@@ -1,8 +1,9 @@
 # Historical first-capability plan
 
-The [consolidated PIP-0003 record](pips/PIP-0003/PIP-0003.md) identifies the
-current capability scope and evidence. Its former milestone plan is preserved
-at [revision 247f1f1](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/247f1f1/docs/pips/PIP-0003/PIP-0003.md).
+The [PIP-0003 record](pips/PIP-0003/PIP-0003.md) identifies the capability
+boundary. The [historical Execution Plan](pips/PIP-0003/EXECUTION-PLAN.md)
+organizes its implementation sequence and technical gates. The exact former
+milestone plan remains available at [revision 247f1f1](https://github.com/paycrypto-me/paycrypto-me-primitives-php/blob/247f1f11c484675bcc8f56aeb0a20c68edde4337/docs/pips/PIP-0003/PIP-0003.md).
 
 This path remains only to resolve references in previously issued assessments.
 It is not a second plan or a PIP proposal record. The earlier plan is available

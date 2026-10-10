@@ -17,7 +17,10 @@ docs/
 │   └── primitives/
 │       └── COUNTER-PROOF-REPORT-v1.5.md
 ├── pips/
-│   ├── PIP-0003/                    # consolidated historical capability record
+│   ├── PIP-0003/
+│   │   ├── PIP-0003.md              # capability proposal and boundaries
+│   │   ├── EXECUTION-PLAN.md        # recovered historical implementation plan
+│   │   └── milestones/             # M01 draft, handoff and diagrams
 │   └── PIPxxxxx/                    # Issue-derived identity for a new governed PIP
 └── research/                         # repository evidence/proposals when applicable
 
@@ -34,10 +37,14 @@ tools/
 
 ## Authority and purpose
 
-The [consolidated first-capability record](pips/PIP-0003/PIP-0003.md) is the
-current entry point for public address derivation. It retains the historical
-PIP-0003 identity and links the useful results of PIP-0001 and PIP-0002 without
-changing their issued records. The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
+The [historical PIP-0003 record](pips/PIP-0003/PIP-0003.md) is the current
+entry point for the public address capability boundary. Its
+[historical Execution Plan](pips/PIP-0003/EXECUTION-PLAN.md) holds the recovered
+implementation sequence and technical gates.
+[Issue #3](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/3)
+is its retrospective coordination anchor. The plan, old execution package and
+M01 draft do not establish v1.0 approval or current execution authorization.
+The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
 assesses an earlier plan only. The former `PLAN-FIRST-CAPABILITY.md` path is a
 navigation note for historical assessments.
 
@@ -71,8 +78,9 @@ navigation note for historical assessments.
   unchanged when current documentation evolves.
 - The PIP-0003 execution package also predates v0.2. Its issued package manifest
   identifies the baseline at Git revision `95e83842ed9f4a577998e49851449230f56f56b2`;
-  the full former plan is recoverable at `247f1f1`. These historical artifacts
-  do not establish v1.0 approval or a current Execution Plan.
+  the exact former plan is recoverable at `247f1f1`. The organized historical
+  Execution Plan provides a present reading path without changing those records
+  or establishing v1.0 approval.
 - `docs/research/` may contain evidence, investigations, spikes, and proposals.
   Those artifacts do not become canonical merely by being stored there.
 - `tools/skills/` contains reusable engineering/governance methods. Skills
