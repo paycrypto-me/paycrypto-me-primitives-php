@@ -34,10 +34,12 @@ tools/
 
 ## Authority and purpose
 
-The [consolidated first-capability record](pips/PIP-0003/PIP-0003.md) is the
-current entry point for public address derivation. It retains the historical
-PIP-0003 identity and links the useful results of PIP-0001 and PIP-0002 without
-changing their issued records. The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
+The [historical PIP-0003 record](pips/PIP-0003/PIP-0003.md) is the current
+entry point for the public address capability boundary and its evidence.
+[Issue #3](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/3)
+is its retrospective coordination anchor. The old execution package and M01
+draft are historical inputs, not a v1.0-approved proposal or current execution
+instructions. The [independent plan review](reviews/plan-first-capability-canonical-alignment.md)
 assesses an earlier plan only. The former `PLAN-FIRST-CAPABILITY.md` path is a
 navigation note for historical assessments.
 
