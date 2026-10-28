@@ -1,9 +1,13 @@
 # M05 — Composition decisions and PHP contract proposals
 
-Current record, 2026-10-28. Work: [Issue #41](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/41),
-[PR #44](https://github.com/paycrypto-me/paycrypto-me-primitives-php/pull/44).
-**C1 is architecturally agreed; C2 is next. M05 contracts are not frozen and no
-production schema validator, executor or public address capability is qualified.**
+Current record, 2026-10-28. C1: [Issue #41](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/41)
+and [PR #44](https://github.com/paycrypto-me/paycrypto-me-primitives-php/pull/44),
+merged at [`ee542e9`](https://github.com/paycrypto-me/paycrypto-me-primitives-php/commit/ee542e905b1b83f662356091bb2b4e59254186f5).
+Current C2 coordination: [Issue #45](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/45),
+with its own work branch and PR linked there.
+**C1 is agreed and merged; C2 is the current discussion, still undecided.
+M05 contracts are not frozen and no production schema validator, executor
+or public address capability is qualified.**
 
 This document owns composition agreements, concrete PHP proposals and their
 acceptance obligations. The [M05 assessment](README.md) owns provider/runtime
@@ -19,15 +23,24 @@ codec is implemented by this proposal.
 | Material | Authority and next action |
 |---|---|
 | [Agreed composition direction](#agreed-composition-direction) and current policy relationships | Joint C1 architecture, including independent complete policy flows, direct local bindings, resource scope, responsibility and audit criteria. |
-| [Choice table](#preliminary-choices-for-joint-discussion) | C2 is the next discussion: readable authoring, duplicate detection, scoped references and immutable representation. C3–C6 retain their stated open choices. |
+| [Choice table](#preliminary-choices-for-joint-discussion) | C2 is the current separately tracked discussion: readable authoring, duplicate detection, scoped references and immutable representation. C3–C6 retain their stated open choices. |
 | [Source example](#preliminary-source-schema-and-immutable-form--c2c5), PHP signatures, provisioning and failure representation | Executor proposals for joint review. Examples and names are not accepted APIs or instructions to implement unchanged. |
+| [C2 authoring laboratory](#c2-authoring-laboratory--exploratory-findings) | Three source candidates and separate scoped-binding experiments, authorized for investigation. Bounded structural evidence; no candidate or API is jointly selected. |
 | [Fitness evidence](#exploratory-reuse-fitness-challenges--outside-pip-0003-delivery) | Bounded symbolic checks and contract analysis. They support C1's direction; they do not qualify actual future Taproot/CashAddr admission, providers or execution. |
 | [Downstream acceptance](#contract-review-and-downstream-acceptance) | Requirements for M06/M07 implementation and later assembled verification, not passed production tests. |
 
-To continue, read the C2 row and its source example. The discussion must choose
-an authoring form that preserves agreed semantics without unnecessary verbosity.
+To continue, compare the C2 laboratory's source examples and findings against
+the preliminary pair-list form. The discussion must choose an authoring form
+that preserves agreed semantics without unnecessary verbosity.
 Document accepted, revised or deferred choices explicitly. A documentation merge,
 a probe passing or permission to draft does not approve an open design choice.
+
+Each step has its own Issue, work branch and PR. Investigate adjacent-stage
+dependencies when needed for C2, but record future-stage findings in their
+appropriate existing sections without silently deciding them. Proposed changes
+to an earlier agreement return to joint discussion with the human pair and the
+agent responsible for that stage. Opening C2 changes coordination only, not any
+source grammar, semantic checker, capability boundary or execution mechanism.
 
 ## Agreed composition direction
 
@@ -276,7 +289,7 @@ source schema, public API or implementation handoff.
 | Choice | Status and proposed direction | Decision still required |
 |---|---|---|
 | C1 — Execution model | **Agreed.** Independent data-declared flows, compatible resources, direct local binding, ordered semantic connections, setup cycle rejection, complete outcomes, failure abort and audit support. | None exclusively in C1. Future contradictions must reopen the affected decision with evidence. |
-| C2 — Authoring and representation | **Next.** Duplicate-observable PHP pair lists are one candidate; typed builders or another concise form remain alternatives. | Human readability, duplicate/unknown-field detection, scoped nested occurrence identity and private immutable resolved records. |
+| C2 — Authoring and representation | **Current discussion; undecided.** The [authoring laboratory](#c2-authoring-laboratory--exploratory-findings) compares pair lists, fixed source records and a restricted builder; scoped-binding candidates are tested separately. | Human readability, duplicate/unknown-field detection across construction paths, metadata ownership, explicit emptiness, scoped nested occurrence identity and private immutable resolved records. |
 | C3 — Semantic compatibility | Required semantic contracts, lineage and parameter roles are agreed; a bounded owned catalogue/checker is proposed. | Minimum useful value types, relation-checking mechanism, whole definition versus narrow parameter bundles, and explicit versus nullable infinity outcome. No blanket nullable ban. |
 | C4 — Composition granularity | Single complete responsibility and the three terminal splits are agreed. Admission/CKDpub units and shared/receiving decompositions remain proposed. | Justify remaining units against real adapters, and choose inspectable raw-prelude/body packaging. Neither each instruction nor a whole hidden address routine is the default unit. |
 | C5 — Ownership and extension | Proposed closed internal catalogue, explicit provider assembly and consumer network/account provisioning. | Final ownership/extension surface and source lifecycle. No arbitrary public loader is approved. |
@@ -396,6 +409,140 @@ them; reject mutable objects in source data. Provider instances occupy a
 separate explicit assembly, not these data records. No universal public
 `Stage::run(mixed): mixed` contract is proposed: dispatch calls the narrow
 capability interfaces, even if an internal interpreter uses a private frame.
+
+#### C2 authoring laboratory — exploratory findings
+
+**Investigation authorized; design decisions pending joint agreement.** The
+[Issue #45 checkpoint](https://github.com/paycrypto-me/paycrypto-me-primitives-php/issues/45#issuecomment-6476912656)
+retains the six questions raised by the human pair and agent. The original
+pair-list form above is a baseline to challenge, not the default winner.
+
+The [probe](probe-authoring.php) compares three composition-source fixtures:
+[pair lists](authoring-lab/pairs.php), [fixed declarative records](authoring-lab/records.php)
+and a [restricted builder](authoring-lab/builders.php). Each contains the same
+nine declarations: HASH160, the proposed admitted-request Bitcoin body, its
+three terminals, and synthetic repeated-composition cases. References remain
+inspectable data; constructors/builders execute no provider or protocol work.
+The typed candidates obtain declared input/parameter signatures from the
+fixture catalogue rather than repeat them in every flow. All candidates enter
+the same bounded structural admission routine; this is not independent
+semantic validation by three implementations.
+
+Executed on **PHP 8.3.36 and 8.4.27: 73 controls pass per runtime**, with equal
+results apart from the PHP version. Each form resolves eight cases: HASH160,
+the six initial network/policy combinations and one independent-sibling case.
+Resolved capability order, source connections, parameters and exported origins
+agree across forms. No request or capability implementation is executed.
+
+| Question | Observed evidence | Still open |
+|---|---|---|
+| Pair-list verbosity | Complete fixtures occupy 211 lines / 8,676 bytes for pairs, 148 / 6,089 for records, and 113 / 4,764 for builders. | These figures reflect this formatting and exclude adapter/catalogue/builder machinery. They measure neither readability nor runtime performance; no winner follows. |
+| Fixed fields versus entry collections | Fixed-record direct calls reject unknown/repeated named arguments; ordered collections retain repeated flow, step and binding identifiers for rejection. A builder that appends also retains duplicates. | Final construction surface, owned failure normalization and author-location diagnostics. An associative map or indexed builder may already have discarded a duplicate. Named unpacking of such a map cannot restore it; native parameter typing also coerces scalars from a weak caller. |
+| Repeated contract metadata and naming | Catalogue signatures remove repeated port/type annotations while preserving these structural results. Pair-source annotations that contradict the catalogue fail. | Who owns/versions those contracts and what signatures should be explicit for review. Existing step and port names remain in every candidate; implicit handles, reduced naming and final semantic types are not evaluated. Resolving a known contract does not certify HASH160 semantics. |
+| Explicit emptiness | Pair fixtures spell 21 empty arrays; typed fixtures spell none. Constructors establish empty entry collections, but the common routine still rejects omitted required inputs/network bindings and extra parameters. | Whether this convenience belongs in the final source form. It supplies no required parameter value, successful result or failure fallback. |
+| Nested binding identity | Flat occurrence paths and contextual binding trees resolve equally. Siblings cannot borrow bindings; duplicates, missing and unused targets fail. Inserting a wrapper requires updating both forms; old contextual bindings also fail. | Readability and refactoring trade-offs, source ownership and final notation. Contextual grouping does not remove structural coupling, and paths are not globally unique bare step names. |
+| Validated immutability | Scalar snapshots detach caller aliases; changing exported arrays or reusing a builder does not change an admitted plan. Mutable leaves and ordinary direct/serialized construction bypasses are rejected. | Final record layout and complete admission coverage. A readonly-array negative control still changes through an external alias. No protection against hostile in-process reflection is claimed. |
+
+**Limits:** fixture catalogues/adapters are trusted; only the selected root's
+closure is expanded, not the entire catalogue or every advertised intent in
+one atomic assembly. Field checks are deliberately shallow and structural.
+Intent/provisioning rows remain driver fixtures, not a complete three-way
+authoring comparison of those records.
+A negative control admits a falsely labelled SHA256→SHA256 flow as `hash160`,
+demonstrating that passing these controls is **not** C3 semantic qualification.
+Malformed recursive PHP containers and arbitrary object graphs are not
+qualified. No codec/crypto bytes, provider, production ingress, executor,
+performance, consumer API or runtime policy is selected. C1's complete setup,
+semantic compatibility and failure-abort obligations remain mandatory.
+
+Reproduce from the repository root on either recorded PHP runtime:
+
+```sh
+php docs/pips/PIP-0003/M05/probe-authoring.php
+```
+
+**Round two — named references, both candidates retained.** The human pair
+prefers clearer declarative records and authorized comparison of associative
+records with typed named references; neither preference selects a final API.
+Replacing `new` with a static factory changes construction syntax, not the
+separation between authored data and the validated internal representation.
+
+The [named-reference probe](probe-named-references.php) compares complete
+[associative declarations](authoring-lab/associative.php) and
+[named typed records](authoring-lab/named-records.php), using the research-only
+[reference variants](authoring-lab/reference-records.php). Both contain the same
+nine declarations and resolve the same eight cases as round one. The fixtures
+were derived from the earlier declarations, not independently sourced semantic
+vectors. Arrays use fixed named fields and ordered entry lists; typed records
+use named constructor arguments and closed reference variants. Neither source
+performs capability work. Both normalize into the same structural admission
+routine; they do not require different execution semantics.
+
+**PHP 8.3.36 and 8.4.27: all 73 baseline and 49 additional controls pass per
+runtime**, with equal reports apart from version. These counts include negative
+controls demonstrating limitations, not 122 independent correctness proofs.
+
+| Property | Associative records | Named typed records |
+|---|---|---|
+| Reference readability | `kind`, `step` and `port` are explicit data fields. | `StepOutput(step: ..., port: ...)` states the variant and fields. |
+| Unknown/missing fields | The schema adapter rejects them. | Direct calls fail with native PHP errors; domain normalization remains open. |
+| Repeated fixed field | PHP overwrites before validation; the control demonstrates the loss. | Repeated direct named arguments fail, but unpacking an already overwritten map cannot recover the loss. |
+| Repeated flow/step/binding | Ordered lists preserve occurrences for rejection. | Ordered lists preserve occurrences for rejection. |
+| Scalar input | Adapter checks the original value without scalar coercion. | Strict calls reject wrong scalar types; a weak caller can coerce before admission. |
+| Source validity | Unknown variants, callable leaves and explicit null fail. | Closed reference types reject callable/null sources; a valid `StepOutput` can still name a nonexistent step. |
+| Omission and ordering | Omitted binding collections become empty; required connections still fail. Step order is never repaired. | Same behavior; constructor defaults supply collections, not required values. |
+
+The associative fixture contains only literal arrays and scalar values. Loading
+it with PHP `require` is still code execution: this experiment does not approve
+a production loader or claim to restrict arbitrary PHP authoring. Typed
+constructors here only build data; no arbitrary callable is an admitted source.
+The existing semantic, catalogue-coverage, recursive-container, diagnostic and
+performance limits remain. No prior duplicate-rejection requirement is waived.
+
+```sh
+php docs/pips/PIP-0003/M05/probe-named-references.php
+```
+
+#### C2 joint checkpoint — two authoring finalists
+
+**Agreed investigation direction; final representation remains open.** The
+human–agent pair retains [associative records](authoring-lab/associative.php)
+and [named typed references](authoring-lab/named-records.php) as the two active
+finalists. The original [records fixture](authoring-lab/records.php) leaves the
+competition by consensus: its positional references require memorizing field
+roles while retaining object construction. Earlier fixtures remain historical
+comparison evidence, not additional active finalists.
+
+Both finalists require admission and connection resolution. Constructing a
+`Flow`, `Call` or `Link` does not execute a capability or prove the composition
+valid. A static factory may change authoring syntax but does not, by itself,
+change those guarantees. No winner, production syntax, dual public API or pair
+of execution engines is approved. Both may converge on one admitted internal
+representation; its concrete design remains open.
+
+The engine should carry mechanical processing and validation so authors can
+express purpose and connections clearly. This does not permit hiding invariants
+or discarding information needed for validation. Duplicate rejection concerns
+conflicting identities within one scope and fields/bindings required to be
+unique, not reuse of a resource. A sequence such as
+`AlgA → hashA → encodeA → algB → hashB → encodeA` is permitted when each
+occurrence has its own identity and compatible connections. Repeated resource
+use is neither deduplicated nor, by itself, a cycle. Fixed-field overwrites
+before admission remain a separate unresolved source-boundary concern.
+
+**Next joint work:** develop both finalists against the same four questions:
+
+1. Declaration content: information supplied by the author versus resolved from contracts.
+2. References: inputs, parameters, outputs, projections and nested occurrences.
+3. Admission: observable errors, detection stage and declaration location.
+4. Admitted representation: guarantees after validation and resolution.
+
+Keep equivalent examples in both forms. Add probes for concrete uncertainties
+or differing restrictions, rather than multiplying syntax variants without a
+question to answer. The existing structural evidence does not settle semantic
+qualification or performance. Contract-derived signatures, collection omission,
+source ownership and final immutable layout remain open; C3–C6 dependencies
+are exposed without being settled here.
 
 ### Preliminary complete composition and intent bindings — C3/C4
 
@@ -1219,7 +1366,8 @@ php -d error_reporting=E_ALL -d display_errors=stderr \
 The [preliminary schema and execution proposal](#preliminary-schema-and-execution-proposal)
 makes concrete choices available for joint discussion. C1's architectural
 extension review is concluded with independent policy flows and reusable
-resources; C2 is next. Concrete C2–C6 choices remain unaccepted.
+resources; C2 is now tracked separately under Issue #45. Concrete C2–C6
+choices remain unaccepted.
 No production schema validator or executor has been implemented or qualified by this
 document. M06 applies the assigned cases to
 the first complete branch; M07 extends them to all policies and receiving.
